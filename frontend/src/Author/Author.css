@@ -1,0 +1,75 @@
+@font-face {
+    font-family: 'AnimeAce';
+    src: url('../../Anime Ace/Anime Ace.ttf') format('truetype');
+}
+
+body,
+html {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    font-family: 'AnimeAce', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    align-items: center;
+    height: 100px;
+    background-color: #FF7400;
+}
+
+.footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    background-color: #FF7400;
+}
+
+.logo {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.logo:hover {
+    color: #000000;
+}
+
+.footerHref {
+    text-decoration: none;
+    color: #ffffff;
+    margin: 10px;
+}
+
+.footerHref:hover {
+    color: #000000;
+}
+
+.content {
+    background-color: #ffffff;
+    width: 80%;
+    height: 800px;
+    border: 1px solid black;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    height: 75%;
+    padding: 70px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+a {
+    text-decoration: none;
+    color:#FF7400;
+    margin-top: 40px;
+}
