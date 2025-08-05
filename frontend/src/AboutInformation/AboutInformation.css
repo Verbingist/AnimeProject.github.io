@@ -1,6 +1,6 @@
 @font-face {
     font-family: 'AnimeAce';
-    src: url('../Anime Ace/Anime Ace.ttf') format('truetype');
+    src: url('../../Anime Ace/Anime Ace.ttf') format('truetype');
 }
 
 body,
@@ -66,38 +66,4 @@ main {
     display: flex;
     align-items: center;
     flex-direction: column;
-}
-
-form {
-    width: 50%;
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
-}
-
-input {
-    border-radius: 20px;
-    width: 80%;
-    height: 50px;
-    margin: 20px;
-}
-
-.register {
-    color: #FF7400;
-    text-decoration: none;
-}
-
-.submit {
-    background-color: #FF7400;
-    font-family: 'AnimeAce', sans-serif;
-
-}
-
-.mail::placeholder {
-    font-family: 'AnimeAce', sans-serif;
-}
-
-.password::placeholder {
-    font-family: 'AnimeAce', sans-serif;
 }
