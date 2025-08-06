@@ -6,8 +6,17 @@
 body,
 html {
     width: 100%;
-    margin: 0;
+    height: 100%;
     font-family: 'AnimeAce', sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+    flex: 1;
 }
 
 * {
@@ -48,7 +57,7 @@ html {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100px;
+    min-height: 100px;
     background-color: #FF7400;
 }
 
@@ -57,12 +66,10 @@ html {
 }
 
 .sidebar {
+    flex: 1;
     background-color: #ffffff;
     width: 20%;
-    border-top: 1px solid black;
-    border-bottom: 1px solid black;
-    border-right: 1px solid black;
-
+    border-left: 1px solid black;
 }
 
 .logo {
@@ -109,8 +116,7 @@ ul>li>a:hover {
 .content {
     background-color: #ffffff;
     width: 80%;
-    height: 800px;
-    border: 1px solid black;
+    min-height: 800px;
     display: flex;
     flex-direction: column;
 }
