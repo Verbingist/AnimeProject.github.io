@@ -176,7 +176,7 @@ a.pagginationButton:hover {
     }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 1000px) {
     * {
         font-size: 10px;
     }
