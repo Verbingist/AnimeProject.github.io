@@ -14,3 +14,7 @@
 // })
 // .then(result => result.json())
 // .then(result => console.log(result))
+
+setInterval(() => {
+  console.log(`Ширина окна: ${window.innerWidth}px`);
+}, 3000);
