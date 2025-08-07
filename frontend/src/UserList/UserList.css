@@ -48,7 +48,7 @@ body {
 
 main {
     flex: 1;
-    padding: 70px;
+    padding: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -102,16 +102,14 @@ main {
 
 .pagination {
     margin-top: 10vh;
-    height: 50px;
     display: flex;
     justify-content: center;
-    align-items: end;
 }
 
 .pagginationButton {
     text-decoration: none;
     color: #FF7400;
-    margin: 20px;
+    margin: 0px 20px;
 }
 
 a.pagginationButton:hover {
@@ -136,9 +134,11 @@ a.pagginationButton:hover {
     * {
         font-size: 2vw;
     }
+
     .users {
         width: 70%;
     }
+
     .search::placeholder {
         font-size: 2vw;
     }
@@ -153,5 +153,14 @@ a.pagginationButton:hover {
 
     .footer {
         height: 50px;
+    }
+
+    .search {
+        font-size: 5px;
+        height: 20px;
+    }
+
+    .pagination {
+        margin-top: 5vh;
     }
 }
