@@ -11,11 +11,12 @@ html {
 }
 
 body {
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
 }
 
 main {
+    display: flex;
     flex: 1;
 }
 
@@ -59,10 +60,6 @@ main {
     align-items: center;
     min-height: 100px;
     background-color: #FF7400;
-}
-
-.container {
-    display: flex;
 }
 
 .sidebar {
@@ -153,4 +150,53 @@ ul>li>a:hover {
 
 a.pagginationButton:hover {
     color: #000000
+}
+
+@media (min-width:3000px) {
+    * {
+        font-size: 40px;
+    }
+
+    .header {
+        height: 300px;
+    }
+
+    .footer {
+        height: 300px;
+    }
+
+    .search {
+        border-radius: 70px;
+    }
+}
+
+@media (max-width: 1200px) {
+    * {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 600px) {
+    * {
+        font-size: 20px;
+    }
+
+    .sidebar {
+        display: none;
+    }
+
+    .content {
+        width: 100%;
+    }
+
+    /* .cardRow {
+        height: ;
+    } */
+
+    .header {
+        height: 50px;
+    }
+    .footer {
+        height: 50px;
+    }
 }
