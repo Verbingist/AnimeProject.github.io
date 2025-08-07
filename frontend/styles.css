@@ -200,26 +200,44 @@ a.pagginationButton:hover {
     * {
         font-size: 10px;
     }
-
     .sidebar {
         display: none;
     }
-
     .content {
         width: 100%;
     }
-
     .header {
         height: 50px;
     }
-
     .search {
         font-size: 5px;
         height: 20px;
     }
-
     .footer {
-
         min-height: 50px;
+    }
+    .logo {
+        font-size: 10px;
+    }
+    .login {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 550px) { 
+    .logo {
+        font-size: 7px;
+    }
+    .login {
+        font-size: 7px;
+    }
+}
+
+@media (max-width: 400px) {
+    .logo {
+        font-size: 5px;
+    }
+    .login {
+        font-size: 5px;
     }
 }
