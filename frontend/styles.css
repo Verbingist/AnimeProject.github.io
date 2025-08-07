@@ -10,6 +10,11 @@ html {
     font-family: 'AnimeAce', sans-serif;
 }
 
+*,
+*::after {
+    font-size: 1.4vw;
+}
+
 body {
     display: flex;
     flex-direction: column;
@@ -26,16 +31,18 @@ main {
 
 .header {
     display: flex;
+    width: 100%;
     justify-content: space-between;
     padding: 20px;
     align-items: center;
-    height: 100px;
+    min-height: 100px;
     background-color: #FF7400;
 }
 
 .search {
     width: 40%;
     height: 50%;
+    font-size: 100%;
     margin: 20px;
     border: 2px solid #ffffff;
     border-radius: 20px;
@@ -47,7 +54,7 @@ main {
 
 .login {
     text-decoration: none;
-    color: #ffffff;
+    color: #ffffff
 }
 
 .login:hover {
@@ -56,9 +63,9 @@ main {
 
 .footer {
     display: flex;
-    justify-content: center;
+    justify-content: left;
     align-items: center;
-    min-height: 100px;
+    flex-direction: row;
     background-color: #FF7400;
 }
 
@@ -78,32 +85,19 @@ main {
     color: #000000;
 }
 
-h1 {
-    margin: 0px;
-}
-
-.footerHref {
-    text-decoration: none;
-    color: #ffffff;
-    margin: 10px;
-}
-
-.footerHref:hover {
-    color: #000000;
-}
-
 .hrefList {
     list-style-type: none;
     margin-bottom: 75px;
 }
 
 .hrefList>li {
-    margin: 30px 10px;
+    margin: 30px 5px;
 }
 
 .hrefList>li>a {
     text-decoration: none;
     color: #FF7400;
+    font-size: 1.2vw;
 }
 
 ul>li>a:hover {
@@ -152,17 +146,37 @@ a.pagginationButton:hover {
     color: #000000
 }
 
+.footerHrefBlock {
+    display: flex;
+    flex-direction: column;
+    margin: 20px;
+}
+
+.footerHref {
+    text-decoration: none;
+    color: #ffffff;
+    margin: 5px;
+}
+
+.footerHref:hover {
+    color: #000000;
+}
+
+.none {
+    display: none;
+}
+
 @media (min-width:2500px) {
     * {
         font-size: 40px;
     }
 
     .header {
-        height: 300px;
+        height: 200px;
     }
 
     .footer {
-        height: 300px;
+        height: 200px;
     }
 
     .search {
@@ -174,69 +188,29 @@ a.pagginationButton:hover {
     }
 }
 
-@media (max-width:1200px) {
-    .hrefList>li>a {
-        font-size: 12px;
-    }
-}
-
-@media (max-width:1100px) {
-    .hrefList>li>a {
-        font-size: 10px;
-    }
-}
-
-@media (max-width:1000px) {
-    .login {
-        font-size: 15px;
-    }
-    .logo {
-        font-size: 15px;
-    }
-}
-
 @media (max-width: 820px) {
-    * {
-        font-size: 10px;
+    * *::after {
+        font-size: 2vw;
     }
+
     .sidebar {
         display: none;
     }
+
+    .none {
+        display: flex;
+    }
+
     .content {
         width: 100%;
     }
-    .header {
-        height: 50px;
-    }
+
     .search {
         font-size: 5px;
         height: 20px;
     }
-    .footer {
+
+    .header {
         min-height: 50px;
-    }
-    .logo {
-        font-size: 10px;
-    }
-    .login {
-        font-size: 10px;
-    }
-}
-
-@media (max-width: 550px) { 
-    .logo {
-        font-size: 7px;
-    }
-    .login {
-        font-size: 7px;
-    }
-}
-
-@media (max-width: 400px) {
-    .logo {
-        font-size: 5px;
-    }
-    .login {
-        font-size: 5px;
     }
 }
