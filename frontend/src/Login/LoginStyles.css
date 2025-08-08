@@ -98,6 +98,24 @@ input {
     font-family: 'AnimeAce', sans-serif;
 }
 
+input.password {
+    font-family: sans-serif !important;
+}
+
+.message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40vw;
+    height: 30vh;
+    border: 3px solid #FF7400;
+    border-radius: 30px;
+}
+
+.orange {
+    color:#FF7400;
+}
+
 .submit:hover {
     cursor: pointer;
 }
