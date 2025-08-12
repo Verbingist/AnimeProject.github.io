@@ -40,6 +40,7 @@ input.password {
     height: 30vh;
     border: 3px solid #FF7400;
     border-radius: 30px;
+    margin: 5px;
 }
 
 .orange {

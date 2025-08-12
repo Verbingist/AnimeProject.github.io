@@ -8,17 +8,16 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('users', function(Blueprint $table) {
+        Schema::create('feedback', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 255);
-            $table->string('email')->unique();
-            $table->string('phone')->unique();
-            $table->string('password');
+            $table->integer('user_id');
+            $table->string('AnimeName');
+            $table->text('anime_feedback');
         });
     }
-
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('feedback');
     }
 };
+

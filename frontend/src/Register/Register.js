@@ -26,7 +26,7 @@ document.addEventListener('submit', (event) => {
     if (password != password2) {
         error.push("Пароли не совпадают")
     }
-    if (error) {
+    if (error.length != 0) {
         let message = document.createElement('div');
         let main = document.body.querySelector('main');
         message.classList.add("message")
@@ -42,11 +42,13 @@ document.addEventListener('submit', (event) => {
     }
 
     let validation = JSON.stringify({
+        name: name, 
         email: email,
-        pass: password,
+        phone: phone,
+        password: password,
     }, null, 2);
 
-    fetch("http://localhost:8001/test.php", {
+    fetch("http://127.0.0.1:8000/Register", {
         method: 'POST',
         headers: {
             "Content-type": "application/json"
@@ -58,12 +60,23 @@ document.addEventListener('submit', (event) => {
             let main = document.body.querySelector('main');
             main.innerHTML = "";
             message.classList.add("message")
-            message.textContent = "Успешный вход"
+            message.textContent = "Успешная регистрация"
             message.classList.add("orange")
             main.append(message);
             setTimeout(() => {
                 window.location.href = '../../index.html';
             }, 1000)
         })
-        .catch(error => console.log(error))
+        .catch((error) => {
+            console.log(JSON.stringify(error))
+            let message = document.createElement('div');
+            let main = document.body.querySelector('main');
+            message.classList.add("message")
+            message.innerHTML = "<p>Случилась ошибка на сервере.</p><p>Попробуйте войти позже</p>"
+            message.classList.add("orange")
+            main.append(message);
+            setTimeout(() => {
+                document.body.querySelector('main').removeChild(document.querySelector('.message'))
+            }, 5000)
+        })
 })
