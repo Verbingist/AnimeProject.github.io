@@ -3,31 +3,30 @@ import validator from 'validator';
 document.addEventListener('submit', (event) => {
     event.preventDefault();
     let inputs = document.querySelectorAll('input');
-    let mail = inputs[0].value;
+    let email = inputs[0].value;
     let password = inputs[1].value;
-    if (!validator.isEmail(mail)) {
-        let message = document.createElement('div');
-        let main = document.body.querySelector('main');
-        message.classList.add("message")
-        message.textContent = "Некорректный email"
-        message.classList.add("orange")
-        main.append(message);
-        return
+
+    let error = "";
+    if (!validator.isEmail(email)) {
+        error = "Неверный email"
     }
 
-    if (password.length < 6) {
+    if (!validator.isEmail(email)) {
         let message = document.createElement('div');
         let main = document.body.querySelector('main');
         message.classList.add("message")
-        message.textContent = "Слишком короткий пароль"
+        message.innerHTML = "<p>Неверный email</p>"
         message.classList.add("orange")
         main.append(message);
+        setTimeout(() => {
+            document.body.querySelector('main').removeChild(document.querySelector('.message'))
+        }, 5000)
         return
     }
 
     let validation = JSON.stringify({
-        email: mail,
-        pass: password,
+        email: email,
+        password: password,
     }, null, 2);
 
     fetch("http://localhost:8001/test.php", {
@@ -49,5 +48,15 @@ document.addEventListener('submit', (event) => {
                 window.location.href = '../../index.html';
             }, 1000)
         })
-        .catch(error => console.log(error))
+        .catch(() => {
+            let message = document.createElement('div');
+            let main = document.body.querySelector('main');
+            message.classList.add("message")
+            message.innerHTML = "<p>Случилась ошибка</p>"
+            message.classList.add("orange")
+            main.append(message);
+            setTimeout(() => {
+                document.body.querySelector('main').removeChild(document.querySelector('.message'))
+            }, 5000)
+        })
 })

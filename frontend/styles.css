@@ -122,6 +122,9 @@ ul>li>a:hover {
 }
 
 .card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 30%;
     height: 90%;
     border: 3px solid #FF7400;
@@ -139,7 +142,12 @@ ul>li>a:hover {
 .pagginationButton {
     text-decoration: none;
     color: #FF7400;
+    user-select: none;
     margin: 20px;
+}
+
+a.pagginationButton {
+    cursor: pointer;
 }
 
 a.pagginationButton:hover {
