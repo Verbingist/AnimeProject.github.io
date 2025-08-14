@@ -1,117 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Animelist</title>
-    <link rel="stylesheet" href="node_modules/normalize.css/normalize.css">
-    <link rel="stylesheet" href="styles.css">
-</head>
-
-<body>
-    <header class="header">
-        <a href="index.html" class="logo">
-            <h1>Animelist</h1>
-        </a>
-        <input type="search" class="search" placeholder="Найти аниме">
-        <h2><a class="login" href="src/Login/LoginPage.html">Вход/регистрация</a></h2>
-    </header>
-    <main class="container">
-        <content class="content">
-            <div class="cardRow">
-                <div class="card">
-
-                </div>
-                <div class="card">
-
-                </div>
-                <div class="card">
-
-                </div>
-            </div>
-            <div class="cardRow">
-                <div class="card">
-
-                </div>
-                <div class="card">
-
-                </div>
-                <div class="card">
-
-                </div>
-
-            </div>
-            <div class="cardRow">
-                <div class="card">
-
-                </div>
-                <div class="card">
-
-                </div>
-                <div class="card">
-
-                </div>
-
-            </div>
-            <div class="pagination">
-                <a class="pagginationButton">← Пред</a>
-                <span class="pagginationButton">Страница: 1</span>
-                <a class="pagginationButton">След →</a>
-            </div>
-        </content>
-        <aside class="sidebar">
-            <ul class="hrefList">
-                <li>
-                    <a href="index.html?popular=1">Популярные</a>
-                </li>
-                <li>
-                    <a href="index.html?viewed=1">Просмотренные</a>
-                </li>
-                <li>
-                    <a href="index.html?planned=1">Запланированные</a>
-                </li>
-                <li>
-                    <a href="index.html?dropped=1">Брошенные</a>
-                </li>
-            </ul>
-            <ul class="hrefList">
-                <li>
-                    <a href="./src/Add/AddAnime.html">Добавить аниме</a>
-                </li>
-                <li>
-                    <a href="./src/Remove/RemoveAnime.html">Удалить аниме</a>
-                </li>
-                <li>
-                    <a href="./src/Change/ChangeAnime.html">Изменить отзыв</a>
-                </li>
-            </ul>
-            <ul class="hrefList">
-                <li>
-                    <a href="./src/UserList/Userlist.html">Участники</a>
-                </li>
-            </ul>
-        </aside>
-    </main>
-    <footer class="footer">
-        <div class="footerHrefBlock">
-            <a class="footerHref" href="./src/AboutInformation/AboutInformation.html">Информация</a>
-            <a class="footerHref" href="./src/Author/Author.html">Автор</a>
-        </div>
-        <div class="footerHrefBlock none">
-            <a class="footerHref" href="index.html?popular=1">Популярные</a>
-            <a class="footerHref" href="index.html?viewed=1">Просмотренные</a>
-            <a class="footerHref" href="index.html?planned=1">Запланированные</a>
-            <a class="footerHref" href="index.html?dropped=1">Брошенные</a>
-        </div>
-        <div class="footerHrefBlock none">
-            <a class="footerHref" href="./src/Add/AddAnime.html">Добавить аниме</a>
-            <a class="footerHref" href="./src/Remove/RemoveAnime.html">Удалить аниме</a>
-            <a class="footerHref" href="./src/Change/ChangeAnime.html">Изменить отзыв</a>
-            <a class="footerHref" href="./src/UserList/Userlist.html">Участники</a>
-        </div>
-    </footer>
-</body>
-<script src="main.js"></script>
-
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + Vue</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
 </html>

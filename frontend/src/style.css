@@ -1,0 +1,13 @@
+@font-face {
+  font-family: 'AnimeAce';
+  src: url('./assets/Anime Ace/Anime Ace.ttf') format('truetype');
+}
+
+html,
+body,
+#app {
+  font-family: 'AnimeAce', sans-serif;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
