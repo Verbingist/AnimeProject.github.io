@@ -5,50 +5,57 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Feedback;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    // public function getPageOfFeedbacks()
-    // {
-    //     $data = User::all(['name', 'password']);
-    //     return response()->json($data, 200);
-    // }
+    public function getNames()
+    {
+        $data = User::all(['name', 'password']);
+        return response()->json($data, 200);
+    }
     public function register(Request $request)
     {
-        if (!$request['name']) {
-            return response()->json(['message' => 'invalid name'], 400);
-        }
-        if (!$request['email']) {
-            return response()->json(['message' => 'invalid email'], 400);
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|alpha',
+            'email' => 'required|email|unique:users',
+            'phone' => 'required|unique:users',
+            'password' => 'required|min:6',
+        ]);
 
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Введены некорректные данные'], 400);
         }
-        if (!$request['phone']) {
-            return response()->json(['message' => 'invalid phone'], 400);
 
-        }
-        if (!$request['password']) {
-            return response()->json(['message' => 'invalid password'], 400);
-        }
         User::insert([
             'name' => $request['name'],
             'email' => $request['email'],
             'phone' => $request['phone'],
-            'password' => $request['password'],
+            'password' => Hash::make($request['password']),
         ]);
 
-        return response(null, 200);
+        return response()->json(['message' => 'Успех'], 200);
     }
 
     public function login(Request $request)
     {
-        $user = User::where('name', '=', $request['name'])
-            ->where('password', '=', $request['password'])
-            ->first();
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required|min:6',
+        ]);
 
-        if ($user)
-            return response('success', 200);
-        else
-            return response('error', 400);
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Введены некорректные данные'], 400);
+        }
+
+        $user = User::where('email', '=', $request['email'])->first();
+
+        if ($user && Hash::check($request['password'], $user->password)) {
+            $request->session()->put('user_id', $user->id);
+            return response()->json(['message' => 'success'], 200);
+        } else
+            return response()->json(['message' => 'error'], 400);
     }
     public function getPageOfFeedbacks($userId, $pageNumber)
     {
