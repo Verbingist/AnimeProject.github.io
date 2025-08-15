@@ -38,6 +38,7 @@ onMounted(() => {
         message.innerHTML = "<p>" + result.message + "</p>"
         message.classList.remove('hidden')
         if (result.status == 200) {
+          document.cookie = "auth=true";
           setTimeout(() => {
             window.location.href = '/';
           }, 1000)
