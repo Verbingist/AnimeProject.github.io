@@ -5,34 +5,18 @@ export default defineConfig({
   plugins: [vue()],
   server: {
     proxy: {
-      '/Register': {
+      '/BackLogin': {
         target: 'http://127.0.0.1:8000',
-        changeOrigin: true
+        changeOrigin: true,
       },
-      '/Login': {
+      '/BackRegister': {
         target: 'http://127.0.0.1:8000',
-        changeOrigin: true
+        changeOrigin: true,
       },
-      '/getPageOfFeedbacks': {
+      '/BackFeedback': {
         target: 'http://127.0.0.1:8000',
-        changeOrigin: true
+        changeOrigin: true,
       },
-      '/addFeedback': {
-        target: 'http://127.0.0.1:8000',
-        changeOrigin: true
-      },
-      '/deleteFeedback': {
-        target: 'http://127.0.0.1:8000',
-        changeOrigin: true
-      },
-      '/updateFeedback': {
-        target: 'http://127.0.0.1:8000',
-        changeOrigin: true
-      },
-      '/getList': {
-        target: 'http://127.0.0.1:8000',
-        changeOrigin: true
-      }
-    }
-  }
+    },
+  },
 })

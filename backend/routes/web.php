@@ -3,11 +3,15 @@
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/Register', [UserController::class, 'register']);
-Route::post('/Login', [UserController::class, 'login']);
-Route::get('/getPageOfFeedbacks/{userid}/{pagenumber}', [UserController::class, 'getPageOfFeedbacks']);
-Route::post('/addFeedback', [UserController::class, 'addFeedback']);
-Route::delete('/deleteFeedback', [UserController::class, 'deleteFeedback']);
-Route::put('/updateFeedback', [UserController::class, 'updateFeedback']);
+Route::post('/BackRegister', [UserController::class, 'register']);
+Route::post('/BackLogin', [UserController::class, 'login']);
+Route::get('/BackGetPageOfFeedbacks/{login}', [UserController::class, 'getPageOfFeedbacks']);
+Route::post('/BackAddFeedback', [UserController::class, 'addFeedback']);
+Route::delete('/BackDeleteFeedback', [UserController::class, 'deleteFeedback']);
+Route::put('/BackUpdateFeedback', [UserController::class, 'updateFeedback']);
+Route::get('/BackGetLogins', [UserController::class, 'getLogins']);
 
-Route::get('/getList', [UserController::class, 'getNames']);
+
+Route::fallback(function () {
+    return response(null, 404);
+});

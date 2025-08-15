@@ -10,15 +10,15 @@ import Update from "../views/Update.vue";
 import UserList from "../views/UserList.vue";
 
 const routes = [
-    { path: "/", component: AnimeList },
-    { path: "/AboutInfo", component: AboutInfo },
-    { path: "/Add", component: Add },
-    { path: "/Author", component: Author },
-    { path: "/Login", component: Login },
-    { path: "/Register", component: Register },
-    { path: "/Remove", component: Remove },
-    { path: "/Update", component: Update },
-    { path: "/UserList", component: UserList },
+    { path: "/", component: AnimeList, meta: { title: 'AnimeList' } },
+    { path: "/AboutInfo", component: AboutInfo,  meta: { title: 'AboutInfo' } },
+    { path: "/Add", component: Add,  meta: { title: 'Add Anime' }  },
+    { path: "/Author", component: Author, meta: { title: 'Author' }  },
+    { path: "/Login", component: Login, meta: { title: 'Login' }  },
+    { path: "/Register", component: Register, meta: { title: 'Register' }  },
+    { path: "/Remove", component: Remove, meta: { title: 'Remove Anime' }  },
+    { path: "/Update", component: Update, meta: { title: 'Update Anime' }  },
+    { path: "/UserList", component: UserList, meta: { title: 'UserList' }  },
 ];
 
 const router = createRouter({

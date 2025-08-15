@@ -12,8 +12,13 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->validateCsrfTokens(except: [
-            '/Register',
-            '/Login'
+            '/BackRegister',
+            '/BackLogin',
+            '/BackAddFeedback',
+            '/BackDeleteFeedback',
+            '/BackUpdateFeedback',
+            '/BackGetPageOfFeedbacks/*',
+            '/BackGetLogins'
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
