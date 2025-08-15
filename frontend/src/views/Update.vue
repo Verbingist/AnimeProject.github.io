@@ -2,32 +2,85 @@
 import { onMounted } from 'vue';
 
 onMounted(() => {
+    document.addEventListener('submit', (event) => {
+        event.preventDefault();
+        let name = document.querySelector('.name').value
+        let feedback = document.querySelector('textarea').value
 
+        if (!name || !feedback) {
+            let message = document.querySelector('.message');
+            message.innerHTML = "<p>Поле пустое</p>"
+            message.classList.remove('hidden')
+            setTimeout(() => {
+                message.classList.add('hidden')
+            }, 5000)
+            return
+        }
+
+        let validation = JSON.stringify({
+            AnimeName: name,
+            anime_feedback: feedback,
+        }, null, 2);
+
+        fetch("/BackUpdateFeedback", {
+            method: 'PUT',
+            headers: {
+                "Content-type": "application/json"
+            },
+            body: validation,
+        })
+            .then(result => result.json())
+            .then((result) => {
+                let message = document.querySelector('.message');
+                message.innerHTML = "<p>" + result.message + "</p>"
+                message.classList.remove('hidden')
+                if (result.status == 200) {
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000)
+                }
+                else {
+                    setTimeout(() => {
+                        message.classList.add('hidden')
+                    }, 5000)
+                }
+            })
+            .catch(() => {
+                let message = document.querySelector('.message');
+                message.innerHTML = "<p>Случилась ошибка</p>"
+                message.classList.remove('hidden')
+                setTimeout(() => {
+                    message.classList.add('hidden')
+                }, 5000)
+            })
+    })
 });
 </script>
 
 <template>
-  <div class="wrapper">
-    <header class="header">
-      <router-link to="/" class="logo">
-        <h1>Animelist</h1>
-      </router-link>
-    </header>
-    <main>
-        <h1>Изменить отзыв</h1>
-        <form>
-            <input class="name" placeholder="Название аниме">
-            <textarea class="feedback" placeholder="Отзыв"></textarea>
-            <input class="submit" type="submit" value="Изменить отзыв">
-        </form>
-    </main>
-    <footer class="footer">
-        <div class="footerHrefBlock">
-        <router-link class="footerHref" to="/AboutInfo">Информация</router-link>
-        <router-link class="footerHref" to="/Author">Автор</router-link>
-      </div>
-    </footer>
-  </div>
+    <div class="wrapper">
+        <header class="header">
+            <router-link to="/" class="logo">
+                <h1>Animelist</h1>
+            </router-link>
+        </header>
+        <main>
+            <h1>Изменить отзыв</h1>
+            <form>
+                <input class="name" placeholder="Название аниме">
+                <textarea class="feedback" placeholder="Отзыв"></textarea>
+                <input class="submit" type="submit" value="Изменить отзыв">
+            </form>
+            <div class="message orange hidden">
+            </div>
+        </main>
+        <footer class="footer">
+            <div class="footerHrefBlock">
+                <router-link class="footerHref" to="/AboutInfo">Информация</router-link>
+                <router-link class="footerHref" to="/Author">Автор</router-link>
+            </div>
+        </footer>
+    </div>
 </template>
 
 <style scoped>
@@ -142,6 +195,26 @@ textarea::placeholder {
     color: #000000;
 }
 
+.message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40vw;
+    height: 30vh;
+    border: 3px solid #FF7400;
+    border-radius: 30px;
+    margin: 5px;
+}
+
+.orange {
+    color: #FF7400;
+}
+
+.hidden {
+    display: none;
+}
+
+
 @media (min-width:2500px) {
     * {
         font-size: 50px;
@@ -163,6 +236,7 @@ textarea::placeholder {
     textarea {
         width: 100%;
     }
+
     textarea::placeholder {
         font-size: 50px;
     }

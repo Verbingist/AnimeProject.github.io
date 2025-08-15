@@ -13,7 +13,15 @@ export default defineConfig({
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,
       },
-      '/BackFeedback': {
+      '/BackAddFeedback': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+      '/BackUpdateFeedback': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+      '/BackDeleteFeedback': {
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,
       },

@@ -2,7 +2,49 @@
 import { onMounted } from 'vue';
 
 onMounted(() => {
+  document.addEventListener('submit', (event) => {
+    event.preventDefault();
+    let name = document.querySelector('.name').value
 
+    if (!name) {
+      let message = document.querySelector('.message');
+      message.innerHTML = "<p>Поле пустое</p>"
+      message.classList.remove('hidden')
+      setTimeout(() => {
+        message.classList.add('hidden')
+      }, 5000)
+      return
+    }
+
+    let validation = JSON.stringify({
+      AnimeName: name,
+    }, null, 2);
+
+    fetch("/BackDeleteFeedback", {
+      method: 'DELETE',
+      headers: {
+        "Content-type": "application/json"
+      },
+      body: validation,
+    })
+      .then(result => result.json())
+      .then((result) => {
+        let message = document.querySelector('.message');
+        message.innerHTML = "<p>" + result.message + "</p>"
+        message.classList.remove('hidden')
+        setTimeout(() => {
+          message.classList.add('hidden')
+        }, 5000)
+      })
+      .catch(() => {
+        let message = document.querySelector('.message');
+        message.innerHTML = "<p>Случилась ошибка</p>"
+        message.classList.remove('hidden')
+        setTimeout(() => {
+          message.classList.add('hidden')
+        }, 5000)
+      })
+  })
 });
 </script>
 
@@ -20,6 +62,8 @@ onMounted(() => {
         <input class="submit" type="submit" value="Удалить отзыв">
       </form>
     </main>
+    <div class="message orange hidden">
+    </div>
     <footer class="footer">
       <div class="footerHrefBlock">
         <router-link class="footerHref" to="/AboutInfo">Информация</router-link>
@@ -121,6 +165,25 @@ input {
 
 .footerHref:hover {
   color: #000000;
+}
+
+.message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40vw;
+  height: 30vh;
+  border: 3px solid #FF7400;
+  border-radius: 30px;
+  margin: 5px;
+}
+
+.orange {
+  color: #FF7400;
+}
+
+.hidden {
+  display: none;
 }
 
 @media (min-width:2500px) {
