@@ -13,6 +13,7 @@ return new class extends Migration
             $table->integer('user_id');
             $table->string('AnimeName');
             $table->text('anime_feedback');
+            $table->timestamps();
         });
     }
     public function down(): void

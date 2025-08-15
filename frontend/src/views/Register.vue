@@ -6,6 +6,7 @@ onMounted(() => {
 
   document.addEventListener('submit', (event) => {
     event.preventDefault();
+    event.preventDefault();
     let inputs = document.querySelectorAll('input');
     let name = inputs[0].value;
     let email = inputs[1].value;
@@ -30,17 +31,15 @@ onMounted(() => {
     if (password != password2) {
       error.push("Пароли не совпадают")
     }
+
     if (error.length != 0) {
-      let message = document.createElement('div');
-      let main = document.body.querySelector('main');
-      message.classList.add("message")
+      let message = document.querySelector('.message');
+      message.classList.remove('hidden')
       error.forEach(item => {
         message.innerHTML += ("<p>" + item + "</p>")
       })
-      message.classList.add("orange")
-      main.append(message);
       setTimeout(() => {
-        document.body.querySelector('main').removeChild(document.querySelector('.message'))
+        message.classList.add('hidden')
       }, 5000)
       return
     }
@@ -52,7 +51,7 @@ onMounted(() => {
       password: password,
     }, null, 2);
 
-    fetch("/Register", {
+    fetch("/BackRegister", {
       method: 'POST',
       headers: {
         "Content-type": "application/json"
@@ -60,35 +59,27 @@ onMounted(() => {
       body: validation,
     })
       .then(result => result.json())
-      .then(() => {
-        let message = document.createElement('div');
-        let main = document.body.querySelector('main');
-        main.innerHTML = "";
-        message.classList.add("message")
-        message.textContent = "Успешная регистрация"
-        message.classList.add("orange")
-        main.append(message);
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 1000)
-      })
-      .then(data => {
-        if (data.message === 'Успех') {
-          console.log(data.status + " success")
-        } else {
-          console.log(data.status + " error")
+      .then((result) => {
+        let message = document.querySelector('.message');
+        message.innerHTML = "<p>" + result.message + "</p>"
+        message.classList.remove('hidden')
+        if (result.status == 200) {
+          setTimeout(() => {
+            window.location.href = '/Login';
+          }, 1000)
+        }
+        else {
+          setTimeout(() => {
+            message.classList.add('hidden')
+          }, 5000)
         }
       })
-      .catch((error) => {
-        console.log(JSON.parse(error))
-        let message = document.createElement('div');
-        let main = document.body.querySelector('main');
-        message.classList.add("message")
-        message.innerHTML = "<p>Случилась ошибка на сервере.</p><p>Попробуйте войти позже</p>"
-        message.classList.add("orange")
-        main.append(message);
+      .catch(() => {
+        let message = document.querySelector('.message');
+        message.innerHTML = "<p>Случилась ошибка</p>"
+        message.classList.remove('hidden')
         setTimeout(() => {
-          document.body.querySelector('main').removeChild(document.querySelector('.message'))
+          message.classList.add('hidden')
         }, 5000)
       })
   })
@@ -113,6 +104,8 @@ onMounted(() => {
         <input class="submit" type="submit" value="Вход">
       </form>
       <p>Уже есть аккаунт? <router-link to="/Login" class="register">Войти</router-link></p>
+      <div class="hidden message orange">
+      </div>
     </main>
     <footer class="footer">
       <div class="footerHrefBlock">
@@ -254,6 +247,10 @@ textarea::placeholder {
 
 .footerHref:hover {
   color: #000000;
+}
+
+.hidden {
+  display: none;
 }
 
 @media (min-width:2500px) {

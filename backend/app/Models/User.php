@@ -9,7 +9,5 @@ use App\Models\Feedback;
 
 class User extends Authenticatable
 {
-    public function feedback() {
-        return $this->hasMany(Feedback::class);
-    }
+    
 }

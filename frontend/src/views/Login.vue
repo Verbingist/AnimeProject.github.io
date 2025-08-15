@@ -10,20 +10,12 @@ onMounted(() => {
     let email = inputs[0].value;
     let password = inputs[1].value;
 
-    let error = "";
     if (!validator.isEmail(email)) {
-      error = "Неверный email"
-    }
-
-    if (!validator.isEmail(email)) {
-      let message = document.createElement('div');
-      let main = document.body.querySelector('main');
-      message.classList.add("message")
-      message.innerHTML = "<p>Неверный email</p>"
-      message.classList.add("orange")
-      main.append(message);
+      let message = document.querySelector('.message');
+      message.innerHTML = "<p>Некорректный email</p>"
+      message.classList.remove('hidden')
       setTimeout(() => {
-        document.body.querySelector('main').removeChild(document.querySelector('.message'))
+        message.classList.add('hidden')
       }, 5000)
       return
     }
@@ -33,34 +25,35 @@ onMounted(() => {
       password: password,
     }, null, 2);
 
-    fetch("http://localhost:8001/test.php", {
+    fetch("/BackLogin", {
       method: 'POST',
       headers: {
         "Content-type": "application/json"
       },
       body: validation,
     })
-      .then(() => {
-        let message = document.createElement('div');
-        let main = document.body.querySelector('main');
-        main.innerHTML = "";
-        message.classList.add("message")
-        message.textContent = "Успешный вход"
-        message.classList.add("orange")
-        main.append(message);
-        setTimeout(() => {
-          window.location.href = '../../index.html';
-        }, 1000)
+      .then(result => result.json())
+      .then((result) => {
+        let message = document.querySelector('.message');
+        message.innerHTML = "<p>" + result.message + "</p>"
+        message.classList.remove('hidden')
+        if (result.status == 200) {
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 1000)
+        }
+        else {
+          setTimeout(() => {
+            message.classList.add('hidden')
+          }, 5000)
+        }
       })
       .catch(() => {
-        let message = document.createElement('div');
-        let main = document.body.querySelector('main');
-        message.classList.add("message")
+        let message = document.querySelector('.message');
         message.innerHTML = "<p>Случилась ошибка</p>"
-        message.classList.add("orange")
-        main.append(message);
+        message.classList.remove('hidden')
         setTimeout(() => {
-          document.body.querySelector('main').removeChild(document.querySelector('.message'))
+          message.classList.add('hidden')
         }, 5000)
       })
   })
@@ -82,6 +75,8 @@ onMounted(() => {
         <input class="submit" type="submit" value="Вход">
       </form>
       <p>Нет аккаунта? <router-link to="/Register" class="register">Зарегистрироваться</router-link></p>
+      <div class="message orange hidden">
+      </div>
     </main>
     <footer class="footer">
       <div class="footerHrefBlock">
@@ -234,6 +229,10 @@ textarea::placeholder {
 
 .footerHref:hover {
   color: #000000;
+}
+
+.hidden {
+  display: none;
 }
 
 @media (min-width:2500px) {
