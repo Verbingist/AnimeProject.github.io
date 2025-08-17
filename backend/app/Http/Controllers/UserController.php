@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Feedback;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Project;
 
 class UserController extends Controller
 {
@@ -147,5 +148,9 @@ class UserController extends Controller
             return response()->json(['message' => 'Отзыв успешно записан', 'status' => 200], 200);
         else
             return response()->json(['message' => 'Отзыв не найден', 'status' => 200], 200);
+    }
+    public function getProjects() {
+        $projects = Project::all();
+        return response()->json(['projects' => $projects, 'status' => 200], 200);
     }
 }

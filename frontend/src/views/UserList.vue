@@ -24,7 +24,7 @@ async function addUsersToPage() {
   let users = document.querySelectorAll('.user')
   users.forEach((item, index) => {
     if (userlist.data[index]) {
-      item.setAttribute('to', `/?page=1&method=viewed&email=${userlist.data[index].email}`)
+      item.setAttribute('href', `/?page=1&method=viewed&email=${userlist.data[index].email}`)
       item.innerHTML = `<p>${userlist.data[index].email}</p>`
     }
     else {
