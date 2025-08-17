@@ -31,10 +31,8 @@ async function addUsersToPage() {
       item.innerHTML = `<p>Пусто</p>`
     }
   })
-  if (userlist.data.length < 18)
-    lastPage.value = false;
-  else
-    lastPage.value = true;
+  if (!userlist.notLast) lastPage.value = false
+  else lastPage.value = true;
 }
 
 function updatePagination(method = null, reset = null) {
