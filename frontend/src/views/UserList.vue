@@ -1,9 +1,97 @@
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, watch, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+
+function pageInicialication() {
+  router.push({
+    path: route.path,
+    query: {
+      ...route.query,
+      page: page.value,
+    }
+  })
+  updatePage()
+}
+
+function addTimeOuts() {
+  let animeCards = document.querySelectorAll('.user')
+  animeCards.forEach(item => { item.innerHTML = "<p>Идет загрузка</p>" })
+}
+
+async function addUsersToPage() {
+  let userlist = await fetch(`/BackGetLogins?page=${page.value}`)
+  userlist = await userlist.json()
+  let users = document.querySelectorAll('.user')
+  users.forEach((item, index) => {
+    if (userlist.data[index]) {
+      item.setAttribute('to', `/?page=1&method=viewed&email=${userlist.data[index].email}`)
+      item.innerHTML = `<p>${userlist.data[index].email}</p>`
+    }
+    else {
+      item.innerHTML = `<p>Пусто</p>`
+    }
+  })
+  if (userlist.data.length < 18)
+    lastPage.value = false;
+  else
+    lastPage.value = true;
+}
+
+function updatePagination(method = null, reset = null) {
+  if (reset) {
+    page.value = 1
+    lastPage.value = false
+  }
+  else
+    if (method == 'up') {
+      page.value++
+      router.push({
+        path: route.path,
+        query: {
+          ...route.query,
+          page: page.value,
+        }
+      })
+    }
+    else if (method == 'back') {
+      page.value--
+      router.push({
+        path: route.path,
+        query: {
+          ...route.query,
+          page: page.value,
+        }
+      })
+    }
+  if (page.value < 2) document.querySelectorAll('a.pagginationButton')[0].classList.add('none')
+  else document.querySelectorAll('a.pagginationButton')[0].classList.remove('none')
+}
+
+function updatePage() {
+  addTimeOuts()
+  addUsersToPage()
+  updatePagination()
+}
+
+let route = useRoute();
+let router = useRouter();
+const page = ref(Number(route.query.page) || 1)
+const lastPage = ref(true)
 
 onMounted(() => {
-
+  pageInicialication()
 });
+
+watch(() => route.query.method, () => {
+  page.value = 1;
+  isautorisated()
+  updatePage()
+})
+
+watch(() => route.query.page, () => {
+  updatePage()
+});
+
 </script>
 
 <template>
@@ -17,34 +105,34 @@ onMounted(() => {
     <main>
       <div class="usersrow">
         <div class="users">
-          <router-link class="user" to=#>Иванов иван иванович</router-link>
-          <router-link class="user" to=#>Иванов иван иванович</router-link>
-          <router-link class="user" to=#>Иванов иван иванович</router-link>
-          <router-link class="user" to=#>Иванов иван иванович</router-link>
-          <router-link class="user" to=#>Иванов иван иванович</router-link>
-          <router-link class="user" to=#>Иванов иван иванович</router-link>
+          <a class="user" to=#>Иванов иван иванович</a>
+          <a class="user" to=#>Иванов иван иванович</a>
+          <a class="user" to=#>Иванов иван иванович</a>
+          <a class="user" to=#>Иванов иван иванович</a>
+          <a class="user" to=#>Иванов иван иванович</a>
+          <a class="user" to=#>Иванов иван иванович</a>
         </div>
         <div class="users">
-          <router-link class="user" to=#>Иванов иван иванович</router-link>
-          <router-link class="user" to=#>Иванов иван иванович</router-link>
-          <router-link class="user" to=#>Иванов иван иванович</router-link>
-          <router-link class="user" to=#>Иванов иван иванович</router-link>
-          <router-link class="user" to=#>Иванов иван иванович</router-link>
-          <router-link class="user" to=#>Иванов иван иванович</router-link>
+          <a class="user" to=#>Иванов иван иванович</a>
+          <a class="user" to=#>Иванов иван иванович</a>
+          <a class="user" to=#>Иванов иван иванович</a>
+          <a class="user" to=#>Иванов иван иванович</a>
+          <a class="user" to=#>Иванов иван иванович</a>
+          <a class="user" to=#>Иванов иван иванович</a>
         </div>
         <div class="users">
-          <router-link class="user" to=#>Иванов иван иванович</router-link>
-          <router-link class="user" to=#>Иванов иван иванович</router-link>
-          <router-link class="user" to=#>Иванов иван иванович</router-link>
-          <router-link class="user" to=#>Иванов иван иванович</router-link>
-          <router-link class="user" to=#>Иванов иван иванович</router-link>
-          <router-link class="user" to=#>Иванов иван иванович</router-link>
+          <a class="user" to=#>Иванов иван иванович</a>
+          <a class="user" to=#>Иванов иван иванович</a>
+          <a class="user" to=#>Иванов иван иванович</a>
+          <a class="user" to=#>Иванов иван иванович</a>
+          <a class="user" to=#>Иванов иван иванович</a>
+          <a class="user" to=#>Иванов иван иванович</a>
         </div>
       </div>
       <div class="pagination">
-        <router-link to="/UserList" class="pagginationButton">← Пред</router-link>
-        <span class="pagginationButton">Страница: 1</span>
-        <router-link to="/UserList" class="pagginationButton">След →</router-link>
+        <a @click="updatePagination('back')" class="pagginationButton">← Пред</a>
+        <span class="pagginationButton">Страница: {{ page }}</span>
+        <a v-show="lastPage" @click="updatePagination('up')" class="pagginationButton">След→</a>
       </div>
     </main>
     <footer class="footer">
@@ -162,7 +250,12 @@ main {
 }
 
 a.pagginationButton:hover {
+  cursor: pointer;
   color: #000000
+}
+
+.none {
+  display: none;
 }
 
 @media (min-width:2500px) {

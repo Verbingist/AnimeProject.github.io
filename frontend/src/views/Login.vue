@@ -3,6 +3,23 @@ import { onMounted } from 'vue';
 import validator from 'validator';
 
 onMounted(() => {
+  let auth = document.cookie.split("; ").filter((item) => {
+    return item.startsWith('auth=')
+  });
+  if (auth[0]) {
+    auth = auth[0].split('=')
+    auth = auth[1]
+  }
+  console.log(auth)
+  if (auth == 1) {
+    document.querySelector('main>h1').classList.add('hidden')
+    document.querySelector('form').classList.add("hidden");
+    document.querySelector('main>p').classList.add("hidden");
+    let message = document.querySelector('.message')
+    message.classList.remove("hidden")
+    message.innerHTML = "<p>Вы уже вошли</p>"
+  }
+
 
   document.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -38,7 +55,7 @@ onMounted(() => {
         message.innerHTML = "<p>" + result.message + "</p>"
         message.classList.remove('hidden')
         if (result.status == 200) {
-          document.cookie = "auth=true";
+          document.cookie = "auth=1; max-age=3600";
           setTimeout(() => {
             window.location.href = '/';
           }, 1000)

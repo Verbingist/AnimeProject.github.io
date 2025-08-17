@@ -2,6 +2,22 @@
 import { onMounted } from 'vue';
 
 onMounted(() => {
+  let auth = document.cookie.split("; ").filter((item) => {
+    return item.startsWith('auth=')
+  });
+  if (auth[0]) {
+    auth = auth[0].split('=')
+    auth = auth[1]
+  }
+  console.log(auth)
+  if (auth != 1) {
+    document.querySelector('main>h1').classList.add('hidden')
+    document.querySelector('form').classList.add("hidden");
+    let message = document.querySelector('.message')
+    message.classList.remove("hidden")
+    message.innerHTML = "<p>Необходимо авторизоваться</p>"
+  }
+
   document.addEventListener('submit', (event) => {
     event.preventDefault();
     let name = document.querySelector('.name').value
@@ -61,9 +77,9 @@ onMounted(() => {
         <input class="name" placeholder="Название аниме">
         <input class="submit" type="submit" value="Удалить отзыв">
       </form>
+      <div class="message orange hidden">
+      </div>
     </main>
-    <div class="message orange hidden">
-    </div>
     <footer class="footer">
       <div class="footerHrefBlock">
         <router-link class="footerHref" to="/AboutInfo">Информация</router-link>
@@ -203,14 +219,6 @@ input {
     width: 100%;
     height: 100px;
   }
-
-  textarea {
-    width: 100%;
-  }
-
-  textarea::placeholder {
-    font-size: 50px;
-  }
 }
 
 @media (max-width: 820px) {
@@ -227,10 +235,6 @@ input {
   }
 
   input {
-    width: 100%;
-  }
-
-  textarea {
     width: 100%;
   }
 }

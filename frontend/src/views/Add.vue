@@ -2,10 +2,26 @@
 import { onMounted } from 'vue';
 
 onMounted(() => {
+  let auth = document.cookie.split("; ").filter((item) => {
+    return item.startsWith('auth=')
+  });
+  if (auth[0]) {
+    auth = auth[0].split('=')
+    auth = auth[1]
+  }
+  if (auth != 1) {
+    document.querySelector('main>h1').classList.add('hidden')
+    document.querySelector('form').classList.add("hidden");
+    let message = document.querySelector('.message')
+    message.classList.remove("hidden")
+    message.innerHTML = "<p>Необходимо авторизоваться</p>"
+  }
+
   document.addEventListener('submit', (event) => {
     event.preventDefault();
     let name = document.querySelector('.name').value
     let feedback = document.querySelector('textarea').value
+    let status = document.querySelector('select').value
 
     if (!name || !feedback) {
       let message = document.querySelector('.message');
@@ -17,8 +33,24 @@ onMounted(() => {
       return
     }
 
+    switch (status) {
+      case "Просмотрено": {
+        status = "viewed"
+      }
+      case "Запранированно": {
+        status = "planned"
+      }
+      case "Брошено": {
+        status = "dropped"
+      }
+      default: {
+        status = "viewed"
+      }
+    }
+
     let validation = JSON.stringify({
       AnimeName: name,
+      status: status,
       anime_feedback: feedback,
     }, null, 2);
 
@@ -61,6 +93,11 @@ onMounted(() => {
       <h1>Добавить отзыв</h1>
       <form>
         <input class="name" placeholder="Название аниме">
+        <select>
+          <option>Просмотрено</option>
+          <option>Запранированно</option>
+          <option>Брошено</option>
+        </select>
         <textarea class="feedback" placeholder="Отзыв"></textarea>
         <input class="submit" type="submit" value="Отправить отзыв">
       </form>
@@ -140,6 +177,14 @@ input {
 .register {
   color: #FF7400;
   text-decoration: none;
+}
+
+select {
+  border-radius: 20px;
+  width: 80%;
+  height: 10vh;
+  margin-bottom: 20px;
+  background-color: #ffffff;
 }
 
 .submit {
@@ -232,6 +277,11 @@ textarea::placeholder {
     height: 100px;
   }
 
+  select {
+    width: 100%;
+    height: 100px;
+  }
+
   textarea {
     width: 100%;
   }
@@ -251,6 +301,10 @@ textarea::placeholder {
   }
 
   input {
+    width: 100%;
+  }
+
+  select {
     width: 100%;
   }
 

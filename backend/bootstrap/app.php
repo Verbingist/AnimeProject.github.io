@@ -17,7 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             '/BackAddFeedback',
             '/BackDeleteFeedback',
             '/BackUpdateFeedback',
-            '/BackGetPageOfFeedbacks/*',
+            '/BackGetPageOfFeedbacks',
             '/BackGetLogins'
         ]);
     })

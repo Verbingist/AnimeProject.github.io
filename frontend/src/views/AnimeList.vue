@@ -1,67 +1,198 @@
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, watch, ref, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+
+function pageInicialication() {
+    isautorisated()
+    updatePagination()
+    router.push({
+        path: route.path,
+        query: {
+            ...route.query,
+            page: page.value,
+            email: route.query.email || 'basic',
+            method: route.query.method || 'popular',
+        }
+    })
+    updatePage(route.query.method)
+}
+
+function isautorisated() {
+    let auth = document.cookie.split("; ").filter((item) => {
+        return item.startsWith('auth=')
+    });
+    if (auth[0]) {
+        auth = auth[0].split('=')
+        auth = auth[1]
+    }
+    if (auth == 1) {
+        document.querySelector('.header>h2').classList.add('hidden')
+    }
+}
 
 function addTimeOuts() {
     let animeCards = document.querySelectorAll('.card')
     animeCards.forEach(item => { item.innerHTML = "<p>Идет загрузка</p>" })
 }
 
-async function getanime(page = 1) {
-    let popularAnimeList = await fetch(`https://api.jikan.moe/v4/anime?order_by=popularity&limit=9&page=${page}`)
+function updatePagination(method = null, reset = null) {
+    if (reset) {
+        page.value = 1
+        lastPage.value = false
+    }
+    else
+        if (method == 'up') {
+            page.value++
+            router.push({
+                path: route.path,
+                query: {
+                    ...route.query,
+                    page: page.value,
+                }
+            })
+        }
+        else if (method == 'back') {
+            page.value--
+            router.push({
+                path: route.path,
+                query: {
+                    ...route.query,
+                    page: page.value,
+                }
+            })
+        }
+    if (page.value < 2) document.querySelectorAll('a.pagginationButton')[0].classList.add('none')
+    else document.querySelectorAll('a.pagginationButton')[0].classList.remove('none')
+}
+
+async function addPopularAnimeToPage() {
+    let popularAnimeList = await fetch(`https://api.jikan.moe/v4/anime?order_by=popularity&limit=9&page=${page.value}`)
     popularAnimeList = await popularAnimeList.json()
-    return popularAnimeList.data
-}
-
-async function addPopularAnimeToPage(page = 1) {
-    let popularAnimeList = await getanime(page)
+    popularAnimeList = popularAnimeList.data
     let animeCards = document.querySelectorAll('.card')
-    popularAnimeList.forEach((item, index) => {
-        animeCards[index].innerHTML = `<p>${item.title}</p>`
-    })
-}
-
-async function updatePageContent(page = 1) {
-    addTimeOuts()
-    let params = new URLSearchParams(window.location.search)
-    if (params.has('viewed')) {
-
-    }
-    else if (params.has('planned')) {
-
-    }
-    else if (params.has('dropped')) {
-
-    } else {
-        addPopularAnimeToPage(page)
-    }
-}
-onMounted(() => {
-    updatePageContent()
-    let page = 1
-    if (page == 1) {
-        document.querySelector('.pagginationButton').classList.add('none')
-    }
-    document.querySelectorAll('a.pagginationButton')[1].addEventListener('click', () => {
-        ++page
-        document.querySelector('span.pagginationButton').textContent = `Страница ${page}`
-        if (page == 1) {
-            document.querySelector('.pagginationButton').classList.add('none')
-
-        }
-        else document.querySelector('.pagginationButton').classList.remove('none')
-        updatePageContent(page)
-    })
-    document.querySelectorAll('a.pagginationButton')[0].addEventListener('click', () => {
-        --page
-        document.querySelector('span.pagginationButton').textContent = `Страница ${page}`
-        if (page == 1) {
-            document.querySelector('.pagginationButton').classList.add('none')
-        }
+    animeCards.forEach((item, index) => {
+        if (popularAnimeList[index])
+            item.innerHTML = `<p>${popularAnimeList[index].title}</p>`
         else
-            document.querySelector('.pagginationButton').classList.remove('none')
-        updatePageContent(page)
+            item.innerHTML = `<p>Пусто</p>`
     })
-}); 
+    lastPage.value = true;
+}
+
+async function addUserAnimeToPage(method = "viewed") {
+    let feedbacks;
+    if (route.query.email == "basic" || route.query.email == "")
+        feedbacks = JSON.stringify({
+            'status': method,
+        }, null, 2)
+    else
+        feedbacks = JSON.stringify({
+            'email': route.query.email,
+            'status': method,
+        }, null, 2)
+
+    fetch(`/BackGetPageOfFeedbacks?page=${page.value}`, {
+        method: 'POST',
+        headers: {
+            "Content-type": "application/json"
+        },
+        body: feedbacks,
+    })
+        .then(result => result.json())
+        .then((result) => {
+            let cards = document.querySelectorAll('.card')
+            cards.forEach((item, index) => {
+                if (result.data[index])
+                    item.innerHTML = `<p>${result.data[index].AnimeName}</p>`
+                else {
+                    item.innerHTML = `<p>Пусто</p>`
+                }
+            })
+            if (result.data.length < 9) lastPage.value = false;
+            else lastPage.value = true;
+        })
+}
+
+function updatePage() {
+    addTimeOuts()
+    updatePagination()
+    if (route.query.method == 'viewed') {
+        addUserAnimeToPage('viewed')
+    }
+    else if (route.query.method == 'planned') {
+        addUserAnimeToPage('planned')
+    }
+    else if (route.query.method == 'dropped') {
+        addUserAnimeToPage('dropped')
+    }
+    else {
+        addPopularAnimeToPage()
+    }
+}
+
+let route = useRoute();
+let router = useRouter();
+const page = ref(Number(route.query.page) || 1)
+const lastPage = ref(true)
+
+onMounted(() => {
+    pageInicialication()
+});
+
+watch(() => route.query.method, () => {
+    page.value = 1;
+    isautorisated()
+    updatePage()
+})
+
+watch(() => route.query.page, () => {
+    updatePage()
+});
+
+let popularHref = computed(() => ({
+    path: '/',
+    query: {
+        ...route.query,
+        method: 'popular',
+        page: '1'
+    }
+}));
+
+let viewedHref = computed(() => ({
+    path: '/',
+    query: {
+        ...route.query,
+        method: 'viewed',
+        page: '1'
+    }
+}))
+
+let plannedHref = computed(() => ({
+    path: '/',
+    query: {
+        ...route.query,
+        method: 'planned',
+        page: '1'
+    }
+}))
+
+let droppedHref = computed(() => ({
+    path: '/',
+    query: {
+        ...route.query,
+        method: 'dropped',
+        page: '1'
+    }
+}))
+
+let myAnime = computed(() => ({
+    path: '/',
+    query: {
+        email: 'basic',
+        method: 'dropped',
+        page: '1'
+    }
+}))
 </script>
 
 <template>
@@ -88,16 +219,18 @@ onMounted(() => {
                     <div class="card"> </div>
                     <div class="card"> </div>
                 </div>
-                <div class="pagination"> <router-link class="pagginationButton">← Пред</router-link> <span
-                        class="pagginationButton">Страница: 1</span> <router-link class="pagginationButton">След
-                        →</router-link> </div>
+                <div class="pagination">
+                    <a @click="updatePagination('back')" class="pagginationButton">← Пред</a>
+                    <span class="pagginationButton">Страница: {{ page }}</span>
+                    <a v-show="lastPage" @click="updatePagination('up')" class="pagginationButton">След→</a>
+                </div>
             </div>
             <aside class="sidebar">
                 <ul class="hrefList">
-                    <li> <router-link to="#">Популярные</router-link> </li>
-                    <li> <router-link to="#">Просмотренные</router-link> </li>
-                    <li> <router-link to="#">Запланированные</router-link> </li>
-                    <li> <router-link to="#">Брошенные</router-link> </li>
+                    <li> <router-link :to="popularHref">Популярные</router-link> </li>
+                    <li> <router-link :to="viewedHref">Просмотренные</router-link> </li>
+                    <li> <router-link :to="plannedHref">Запланированные</router-link> </li>
+                    <li> <router-link :to="droppedHref">Брошенные</router-link> </li>
                 </ul>
                 <ul class="hrefList">
                     <li> <router-link to="/Add">Добавить аниме</router-link> </li>
@@ -105,7 +238,8 @@ onMounted(() => {
                     <li> <router-link to="/Update">Изменить отзыв</router-link> </li>
                 </ul>
                 <ul class="hrefList">
-                    <li> <router-link to="/UserList">Участники</router-link> </li>
+                    <li> <router-link to="/UserList?page=1">Участники</router-link> </li>
+                    <li> <router-link :to="myAnime">Мои аниме</router-link> </li>
                 </ul>
             </aside>
         </main>
@@ -113,14 +247,17 @@ onMounted(() => {
             <div class="footerHrefBlock"> <router-link class="footerHref" to="/AboutInfo">Информация</router-link>
                 <router-link class="footerHref" to="/Author">Автор</router-link>
             </div>
-            <div class="footerHrefBlock none"> <router-link class="footerHref" to="#">Популярные</router-link>
-                <router-link class="footerHref" to="#">Просмотренные</router-link> <router-link class="footerHref"
-                    to="#">Запланированные</router-link> <router-link class="footerHref" to="#">Брошенные</router-link>
+            <div class="footerHrefBlock none">
+                <router-link class="footerHref" to="/?method=popular&page=1">Популярные</router-link>
+                <router-link class="footerHref" to="/?method=viewed&page=1">Просмотренные</router-link>
+                <router-link class="footerHref" to="/?method=planned&page=1">Запланированные</router-link>
+                <router-link class="footerHref" to="/?method=dropped&page=1">Брошенные</router-link>
             </div>
-            <div class="footerHrefBlock none"> <router-link class="footerHref" to="/Add">Добавить аниме</router-link>
-                <router-link class="footerHref" to="/Remove">Удалить аниме</router-link> <router-link class="footerHref"
-                    to="/Update">Изменить отзыв</router-link> <router-link class="footerHref"
-                    to="/UserList">Участники</router-link>
+            <div class="footerHrefBlock none">
+                <router-link class="footerHref" to="/Add">Добавить аниме</router-link>
+                <router-link class="footerHref" to="/Remove">Удалить аниме</router-link>
+                <router-link class="footerHref" to="/Update">Изменить отзыв</router-link>
+                <router-link class="footerHref" to="/UserList?page=1">Участники</router-link>
             </div>
         </footer>
     </div>
@@ -224,6 +361,7 @@ main {
 
 ul>li>a:hover {
     color: #000000;
+    cursor: pointer;
 }
 
 .content {
@@ -264,6 +402,7 @@ ul>li>a:hover {
 .pagginationButton {
     text-decoration: none;
     color: #FF7400;
+    cursor: pointer;
     user-select: none;
     margin: 20px;
 }
@@ -293,6 +432,10 @@ router-link.pagginationButton:hover {
 }
 
 .none {
+    display: none;
+}
+
+.hidden {
     display: none;
 }
 
