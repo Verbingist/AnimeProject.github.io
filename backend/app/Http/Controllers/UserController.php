@@ -60,7 +60,7 @@ class UserController extends Controller
             $email = $request->session()->get('email');
         $userid = User::where('email', '=', $email)->first()->id;
         $feedbacks = Feedback::where('user_id', '=', $userid)->
-            where('status', '=', $request['status'])->simplePaginate(9);
+            where('status', '=', $request['status'])->orderBy('id')->paginate(9);
         return response()->json(['data' => $feedbacks->items(), 'status' => 200], 200);
     }
     public function getLogins()

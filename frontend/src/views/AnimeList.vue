@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, watch, ref, computed } from 'vue';
+import { onMounted, watch, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 function pageInicialication() {
@@ -32,7 +32,10 @@ function isautorisated() {
 
 function addTimeOuts() {
     let animeCards = document.querySelectorAll('.card')
-    animeCards.forEach(item => { item.innerHTML = "<p>Идет загрузка</p>" })
+    animeCards.forEach(item => {
+        item.querySelector('.info').innerHTML = "<p>Идет загрузка</p>"
+        item.querySelector('.label').innerHTML = "<p>Идет загрузка</p>"
+    })
 }
 
 function updatePagination(method = null, reset = null) {
@@ -71,10 +74,16 @@ async function addPopularAnimeToPage() {
     popularAnimeList = popularAnimeList.data
     let animeCards = document.querySelectorAll('.card')
     animeCards.forEach((item, index) => {
-        if (popularAnimeList[index])
-            item.innerHTML = `<p>${popularAnimeList[index].title}</p>`
-        else
-            item.innerHTML = `<p>Пусто</p>`
+        item.querySelector('.info').classList.remove('hidden')
+        item.querySelector('.feedback').classList.add('hidden')
+        if (popularAnimeList[index]) {
+            item.querySelector('.label').innerHTML = `<p>${popularAnimeList[index].title}</p>`
+            item.querySelector('.info').innerHTML = `<img src = ${popularAnimeList[index].images.jpg.image_url} height = 260px>`
+        }
+        else {
+            item.querySelector('.label').innerHTML = `<p>Пусто</p>`
+            item.querySelector('.info').innerHTML = "<p>Описание отсутствует</p>"
+        }
     })
     lastPage.value = true;
 }
@@ -102,10 +111,17 @@ async function addUserAnimeToPage(method = "viewed") {
         .then((result) => {
             let cards = document.querySelectorAll('.card')
             cards.forEach((item, index) => {
-                if (result.data[index])
-                    item.innerHTML = `<p>${result.data[index].AnimeName}</p>`
+                item.querySelector('.label').innerHTML = ""
+                item.querySelector('.feedback').innerHTML = ""
+                item.querySelector('.info').classList.add('hidden')
+                item.querySelector('.feedback').classList.remove('hidden')
+                if (result.data[index]) {
+                    item.querySelector('.label').innerHTML = `<p>${result.data[index].AnimeName}</p>`
+                    item.querySelector('.feedback').innerHTML = `<p>${result.data[index].anime_feedback}</p>`
+                }
                 else {
-                    item.innerHTML = `<p>Пусто</p>`
+                    item.querySelector('.label').innerHTML = `<p>Пусто</p>`
+                    item.querySelector('.feedback').innerHTML = `<p>Отзыв отсутствует</p>`
                 }
             })
             if (result.data.length < 9) lastPage.value = false;
@@ -180,19 +196,55 @@ watch(() => route.query.page, () => {
         <main class="container">
             <div class="content">
                 <div class="cardRow">
-                    <div class="card"> </div>
-                    <div class="card"> </div>
-                    <div class="card"> </div>
+                    <div class="card">
+                        <div class="label"></div>
+                        <div class="info"></div>
+                        <div class="feedback hidden"></div>
+                    </div>
+                    <div class="card">
+                        <div class="label"></div>
+                        <div class="info"></div>
+                        <div class="feedback hidden"></div>
+                    </div>
+                    <div class="card">
+                        <div class="label"></div>
+                        <div class="info"></div>
+                        <div class="feedback hidden"></div>
+                    </div>
                 </div>
                 <div class="cardRow">
-                    <div class="card"> </div>
-                    <div class="card"> </div>
-                    <div class="card"> </div>
+                    <div class="card">
+                        <div class="label"></div>
+                        <div class="info"></div>
+                        <div class="feedback hidden"></div>
+                    </div>
+                    <div class="card">
+                        <div class="label"></div>
+                        <div class="info"></div>
+                        <div class="feedback hidden"></div>
+                    </div>
+                    <div class="card">
+                        <div class="label"></div>
+                        <div class="info"></div>
+                        <div class="feedback hidden"></div>
+                    </div>
                 </div>
                 <div class="cardRow">
-                    <div class="card"> </div>
-                    <div class="card"> </div>
-                    <div class="card"> </div>
+                    <div class="card">
+                        <div class="label"></div>
+                        <div class="info"></div>
+                        <div class="feedback hidden"></div>
+                    </div>
+                    <div class="card">
+                        <div class="label"></div>
+                        <div class="info"></div>
+                        <div class="feedback hidden"></div>
+                    </div>
+                    <div class="card">
+                        <div class="label"></div>
+                        <div class="info"></div>
+                        <div class="feedback hidden"></div>
+                    </div>
                 </div>
                 <div class="pagination">
                     <a @click="updatePagination('back')" class="pagginationButton">← Пред</a>
@@ -343,7 +395,7 @@ ul>li>a:hover {
 .content {
     background-color: #ffffff;
     width: 80%;
-    min-height: 800px;
+    min-height: 1200px;
     display: flex;
     flex-direction: column;
 }
@@ -361,11 +413,49 @@ ul>li>a:hover {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
     width: 30%;
     height: 90%;
     border: 3px solid #FF7400;
     border-radius: 20px;
     padding: 20px;
+}
+
+.label {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    margin-bottom: 5%;
+    border: 3px solid #FF7400;
+    border-radius: 20px;
+    width: 95%;
+    height: 20%;
+}
+
+.feedback {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    flex: 1;
+    border: 3px solid #FF7400;
+    border-radius: 20px;
+    height: 70%;
+    width: 95%;
+    padding: 20px;
+    overflow: scroll;
+}
+
+.info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 3px solid #FF7400;
+    border-radius: 20px;
+    height: 300px;
+    width: auto;
+    overflow: hidden;
 }
 
 .pagination {
