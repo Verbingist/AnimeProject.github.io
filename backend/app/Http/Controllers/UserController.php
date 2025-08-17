@@ -61,12 +61,13 @@ class UserController extends Controller
         $userid = User::where('email', '=', $email)->first()->id;
         $feedbacks = Feedback::where('user_id', '=', $userid)->
             where('status', '=', $request['status'])->orderBy('id')->paginate(9);
-        return response()->json(['data' => $feedbacks->items(), 'status' => 200], 200);
+
+        return response()->json(['data' => $feedbacks->items(),'notLast' => $feedbacks->hasMorePages() ,'status' => 200], 200);
     }
     public function getLogins()
     {
         $emails = User::select('email')->simplePaginate(18);
-        return response()->json(['data' => $emails->items(), 'status' => 200], 200);
+        return response()->json(['data' => $emails->items(),'notLast' => $emails->hasMorePages(), 'status' => 200], 200);
     }
     public function addFeedback(Request $request)
     {
@@ -149,7 +150,8 @@ class UserController extends Controller
         else
             return response()->json(['message' => 'Отзыв не найден', 'status' => 200], 200);
     }
-    public function getProjects() {
+    public function getProjects()
+    {
         $projects = Project::all();
         return response()->json(['projects' => $projects, 'status' => 200], 200);
     }

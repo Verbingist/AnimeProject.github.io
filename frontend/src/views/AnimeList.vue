@@ -64,8 +64,8 @@ function updatePagination(method = null, reset = null) {
                 }
             })
         }
-    if (page.value < 2) document.querySelectorAll('a.pagginationButton')[0].classList.add('none')
-    else document.querySelectorAll('a.pagginationButton')[0].classList.remove('none')
+    if (page.value < 2) document.querySelectorAll('a.pagginationButton')[0].classList.add('hidden')
+    else document.querySelectorAll('a.pagginationButton')[0].classList.remove('hidden')
 }
 
 async function addPopularAnimeToPage() {
@@ -78,7 +78,8 @@ async function addPopularAnimeToPage() {
         item.querySelector('.feedback').classList.add('hidden')
         if (popularAnimeList[index]) {
             item.querySelector('.label').innerHTML = `<p>${popularAnimeList[index].title}</p>`
-            item.querySelector('.info').innerHTML = `<img src = ${popularAnimeList[index].images.jpg.image_url} height = 260px>`
+            item.querySelector('.info').innerHTML = `<img src = ${popularAnimeList[index].images.jpg.image_url} height="100%">`
+            item.querySelector('.info img').classList.add('imgclass')
         }
         else {
             item.querySelector('.label').innerHTML = `<p>Пусто</p>`
@@ -124,7 +125,7 @@ async function addUserAnimeToPage(method = "viewed") {
                     item.querySelector('.feedback').innerHTML = `<p>Отзыв отсутствует</p>`
                 }
             })
-            if (result.data.length < 9) lastPage.value = false;
+            if (!result.notLast) lastPage.value = false
             else lastPage.value = true;
         })
 }
@@ -275,17 +276,17 @@ watch(() => route.query.page, () => {
                 <router-link class="footerHref" to="/Author">Автор</router-link>
             </div>
             <div class="footerHrefBlock none">
-                <router-link :to="getNewRoute('popular')">Популярные</router-link>
-                <router-link :to="getNewRoute('viewed')">Просмотренные</router-link>
-                <router-link :to="getNewRoute('planned')">Запланированные</router-link>
-                <router-link :to="getNewRoute('dropped')">Брошенные</router-link>
+                <router-link :to="getNewRoute('popular')" class="footerHref">Популярные</router-link>
+                <router-link :to="getNewRoute('viewed')" class="footerHref">Просмотренные</router-link>
+                <router-link :to="getNewRoute('planned')" class="footerHref">Запланированные</router-link>
+                <router-link :to="getNewRoute('dropped')" class="footerHref">Брошенные</router-link>
             </div>
             <div class="footerHrefBlock none">
                 <router-link class="footerHref" to="/Add">Добавить аниме</router-link>
                 <router-link class="footerHref" to="/Remove">Удалить аниме</router-link>
                 <router-link class="footerHref" to="/Update">Изменить отзыв</router-link>
-                <router-link to="/UserList?page=1">Участники</router-link>
-                <router-link :to="getNewRoute('basic')">Мои аниме</router-link>
+                <router-link to="/UserList?page=1" class="footerHref">Участники</router-link>
+                <router-link :to="getNewRoute('basic')" class="footerHref">Мои аниме</router-link>
             </div>
         </footer>
     </div>
@@ -425,7 +426,6 @@ ul>li>a:hover {
     display: flex;
     justify-content: center;
     align-items: center;
-    flex: 1;
     margin-bottom: 5%;
     border: 3px solid #FF7400;
     border-radius: 20px;
@@ -468,16 +468,15 @@ ul>li>a:hover {
 .pagginationButton {
     text-decoration: none;
     color: #FF7400;
-    cursor: pointer;
     user-select: none;
     margin: 20px;
 }
 
-router-link.pagginationButton {
+a.pagginationButton {
     cursor: pointer;
 }
 
-router-link.pagginationButton:hover {
+a.pagginationButton:hover {
     color: #000000
 }
 
@@ -551,6 +550,22 @@ router-link.pagginationButton:hover {
 
     .header {
         min-height: 50px;
+    }
+
+    .info {
+        height: 180px;
+    }
+
+    .label {
+        width: 100%;
+    }
+
+    .card {
+        padding: 5px;
+    }
+
+    .content {
+        min-height: 900px;
     }
 }
 </style>
