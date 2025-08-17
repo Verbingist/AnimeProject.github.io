@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/BackRegister', [UserController::class, 'register']);
 Route::post('/BackLogin', [UserController::class, 'login']);
-Route::get('/BackGetPageOfFeedbacks/{login}', [UserController::class, 'getPageOfFeedbacks']);
+Route::post('/BackGetPageOfFeedbacks', [UserController::class, 'getPageOfFeedbacks']);
 Route::post('/BackAddFeedback', [UserController::class, 'addFeedback']);
 Route::delete('/BackDeleteFeedback', [UserController::class, 'deleteFeedback']);
 Route::put('/BackUpdateFeedback', [UserController::class, 'updateFeedback']);

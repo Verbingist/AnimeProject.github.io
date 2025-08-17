@@ -47,19 +47,24 @@ class UserController extends Controller
 
         if ($user && Hash::check($request['password'], $user->password)) {
             $request->session()->put('user_id', $user->id);
+            $request->session()->put('email', $request['email']);
             return response()->json(['message' => 'Успешный вход', 'status' => 200], 200);
         } else
             return response()->json(['message' => 'Неверный логин или пароль', 'status' => 400], 400);
     }
-    public function getPageOfFeedbacks($login)
+    public function getPageOfFeedbacks(Request $request)
     {
-        $userid = User::where('email', '=', $login)->first()->id;
-        $feedbacks = Feedback::where('user_id', '=', $userid)->simplePaginate(9);
+        $email = $request['email'];
+        if ($request['email'] === "basic" || $request['email'] == "")
+            $email = $request->session()->get('email');
+        $userid = User::where('email', '=', $email)->first()->id;
+        $feedbacks = Feedback::where('user_id', '=', $userid)->
+            where('status', '=', $request['status'])->simplePaginate(9);
         return response()->json(['data' => $feedbacks->items(), 'status' => 200], 200);
     }
     public function getLogins()
     {
-        $emails = User::select('email')->simplePaginate(10);
+        $emails = User::select('email')->simplePaginate(18);
         return response()->json(['data' => $emails->items(), 'status' => 200], 200);
     }
     public function addFeedback(Request $request)
@@ -70,16 +75,18 @@ class UserController extends Controller
 
         $validator = Validator::make($request->all(), [
             'AnimeName' => 'required',
+            'status' => 'required',
             'anime_feedback' => '',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => 'Название обязательно'], 400);
+            return response()->json(['message' => 'Название и статус обязательны'], 400);
         }
 
         Feedback::insert([
             'user_id' => $userid,
             'AnimeName' => $request['AnimeName'],
+            'status' => $request['status'],
             'anime_feedback' => $request['anime_feedback'],
         ]);
 
@@ -116,6 +123,7 @@ class UserController extends Controller
 
         $validator = Validator::make($request->all(), [
             'AnimeName' => 'required',
+            'status' => '',
             'anime_feedback' => '',
         ]);
 
@@ -123,10 +131,17 @@ class UserController extends Controller
             return response()->json(['message' => 'Название обязательно'], 400);
         }
 
-        $updatedCount = Feedback::where('AnimeName', '=', $request['AnimeName'])
-            ->where('user_id', '=', $userid)->update([
-                    'anime_feedback' => $request['anime_feedback'],
-                ]);
+        if ($request['status'])
+            $updatedCount = Feedback::where('AnimeName', '=', $request['AnimeName'])
+                ->where('user_id', '=', $userid)->update([
+                        'anime_feedback' => $request['anime_feedback'],
+                        'status' => $request['status'],
+                    ]);
+        else
+            $updatedCount = Feedback::where('AnimeName', '=', $request['AnimeName'])
+                ->where('user_id', '=', $userid)->update([
+                        'anime_feedback' => $request['anime_feedback'],
+                    ]);
 
         if ($updatedCount > 0)
             return response()->json(['message' => 'Отзыв успешно записан', 'status' => 200], 200);
