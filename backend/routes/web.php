@@ -10,6 +10,7 @@ Route::post('/BackAddFeedback', [UserController::class, 'addFeedback']);
 Route::delete('/BackDeleteFeedback', [UserController::class, 'deleteFeedback']);
 Route::put('/BackUpdateFeedback', [UserController::class, 'updateFeedback']);
 Route::get('/BackGetLogins', [UserController::class, 'getLogins']);
+Route::get('/BackGetProjects', [UserController::class, 'getProjects']);
 
 
 Route::fallback(function () {

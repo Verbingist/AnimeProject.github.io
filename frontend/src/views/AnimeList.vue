@@ -130,6 +130,26 @@ function updatePage() {
     }
 }
 
+function getNewRoute(method) {
+    if (method == 'basic')
+        return {
+            path: '/',
+            query: {
+                email: 'basic',
+                method: 'public',
+                page: '1'
+            }
+        }
+    return {
+        path: '/',
+        query: {
+            ...route.query,
+            method: method,
+            page: '1'
+        }
+    }
+}
+
 let route = useRoute();
 let router = useRouter();
 const page = ref(Number(route.query.page) || 1)
@@ -148,51 +168,6 @@ watch(() => route.query.method, () => {
 watch(() => route.query.page, () => {
     updatePage()
 });
-
-let popularHref = computed(() => ({
-    path: '/',
-    query: {
-        ...route.query,
-        method: 'popular',
-        page: '1'
-    }
-}));
-
-let viewedHref = computed(() => ({
-    path: '/',
-    query: {
-        ...route.query,
-        method: 'viewed',
-        page: '1'
-    }
-}))
-
-let plannedHref = computed(() => ({
-    path: '/',
-    query: {
-        ...route.query,
-        method: 'planned',
-        page: '1'
-    }
-}))
-
-let droppedHref = computed(() => ({
-    path: '/',
-    query: {
-        ...route.query,
-        method: 'dropped',
-        page: '1'
-    }
-}))
-
-let myAnime = computed(() => ({
-    path: '/',
-    query: {
-        email: 'basic',
-        method: 'dropped',
-        page: '1'
-    }
-}))
 </script>
 
 <template>
@@ -227,10 +202,10 @@ let myAnime = computed(() => ({
             </div>
             <aside class="sidebar">
                 <ul class="hrefList">
-                    <li> <router-link :to="popularHref">Популярные</router-link> </li>
-                    <li> <router-link :to="viewedHref">Просмотренные</router-link> </li>
-                    <li> <router-link :to="plannedHref">Запланированные</router-link> </li>
-                    <li> <router-link :to="droppedHref">Брошенные</router-link> </li>
+                    <li> <router-link :to="getNewRoute('popular')">Популярные</router-link> </li>
+                    <li> <router-link :to="getNewRoute('viewed')">Просмотренные</router-link> </li>
+                    <li> <router-link :to="getNewRoute('planned')">Запланированные</router-link> </li>
+                    <li> <router-link :to="getNewRoute('dropped')">Брошенные</router-link> </li>
                 </ul>
                 <ul class="hrefList">
                     <li> <router-link to="/Add">Добавить аниме</router-link> </li>
@@ -239,7 +214,7 @@ let myAnime = computed(() => ({
                 </ul>
                 <ul class="hrefList">
                     <li> <router-link to="/UserList?page=1">Участники</router-link> </li>
-                    <li> <router-link :to="myAnime">Мои аниме</router-link> </li>
+                    <li> <router-link :to="getNewRoute('basic')">Мои аниме</router-link> </li>
                 </ul>
             </aside>
         </main>
@@ -248,16 +223,17 @@ let myAnime = computed(() => ({
                 <router-link class="footerHref" to="/Author">Автор</router-link>
             </div>
             <div class="footerHrefBlock none">
-                <router-link class="footerHref" to="/?method=popular&page=1">Популярные</router-link>
-                <router-link class="footerHref" to="/?method=viewed&page=1">Просмотренные</router-link>
-                <router-link class="footerHref" to="/?method=planned&page=1">Запланированные</router-link>
-                <router-link class="footerHref" to="/?method=dropped&page=1">Брошенные</router-link>
+                <router-link :to="getNewRoute('popular')">Популярные</router-link>
+                <router-link :to="getNewRoute('viewed')">Просмотренные</router-link>
+                <router-link :to="getNewRoute('planned')">Запланированные</router-link>
+                <router-link :to="getNewRoute('dropped')">Брошенные</router-link>
             </div>
             <div class="footerHrefBlock none">
                 <router-link class="footerHref" to="/Add">Добавить аниме</router-link>
                 <router-link class="footerHref" to="/Remove">Удалить аниме</router-link>
                 <router-link class="footerHref" to="/Update">Изменить отзыв</router-link>
-                <router-link class="footerHref" to="/UserList?page=1">Участники</router-link>
+                <router-link to="/UserList?page=1">Участники</router-link>
+                <router-link :to="getNewRoute('basic')">Мои аниме</router-link>
             </div>
         </footer>
     </div>

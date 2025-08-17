@@ -1,9 +1,31 @@
 <script setup>
 import { onMounted } from 'vue';
 
-onMounted(() => {
+function addTimeOuts() {
+  let animeCards = document.querySelectorAll('.project')
+  animeCards.forEach(item => { item.innerHTML = "<p>Идет загрузка</p>" })
+}
 
+async function addProjectsToPage() {
+  let projectlist = await fetch(`/BackGetProjects`)
+  projectlist = await projectlist.json()
+  let projects = document.querySelectorAll('.project')
+  projects.forEach((item, index) => {
+    if (projectlist.projects[index]) {
+      item.setAttribute('href', ``)
+      item.innerHTML = `<p>${projectlist.projects[index].projectName}</p>`
+    }
+    else {
+      item.innerHTML = `<p>Пусто</p>`
+    }
+  })
+}
+
+onMounted(() => {
+  addTimeOuts()
+  addProjectsToPage()
 });
+
 </script>
 
 <template>
@@ -15,8 +37,8 @@ onMounted(() => {
     </header>
     <main>
       <p>Другие проекты можно найти по нижестоящим ссылкам</p>
-      <router-link class="project" to="#">Первый проект</router-link>
-      <router-link class="project" to="#">Второй проект</router-link>
+      <a class="project" to="#">Первый проект</a>
+      <a class="project" to="#">Второй проект</a>
     </main>
     <footer class="footer">
       <div class="footerHrefBlock">

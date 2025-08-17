@@ -18,7 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
             '/BackDeleteFeedback',
             '/BackUpdateFeedback',
             '/BackGetPageOfFeedbacks',
-            '/BackGetLogins'
+            '/BackGetLogins',
+            '/BackGetProjects'
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
