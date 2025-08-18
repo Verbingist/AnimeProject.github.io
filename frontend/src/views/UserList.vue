@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, watch, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import axios from 'axios';
 
 function pageInicialication() {
   router.push({
@@ -19,8 +20,11 @@ function addTimeOuts() {
 }
 
 async function addUsersToPage() {
-  let userlist = await fetch(`/BackGetLogins?page=${page.value}`)
-  userlist = await userlist.json()
+  let userlist = await axios(`http://localhost:8000/BackGetLogins?page=${page.value}`, {
+    withCredentials: true,
+    withXSRFToken: true,
+  })
+  userlist = userlist.data;
   let users = document.querySelectorAll('.user')
   users.forEach((item, index) => {
     if (userlist.data[index]) {
@@ -31,7 +35,7 @@ async function addUsersToPage() {
       item.innerHTML = `<p>Пусто</p>`
     }
   })
-  if (!userlist.notLast) lastPage.value = false
+  if (!userlist.data.notLast) lastPage.value = false
   else lastPage.value = true;
 }
 

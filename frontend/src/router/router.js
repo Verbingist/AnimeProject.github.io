@@ -8,6 +8,7 @@ import Register from "../views/Register.vue";
 import Remove from "../views/Remove.vue";
 import Update from "../views/Update.vue";
 import UserList from "../views/UserList.vue";
+import Logout from "../views/Logout.vue";
 
 const routes = [
     { path: "/", component: AnimeList, meta: { title: 'AnimeList' } },
@@ -19,6 +20,7 @@ const routes = [
     { path: "/Remove", component: Remove, meta: { title: 'Remove Anime' }  },
     { path: "/Update", component: Update, meta: { title: 'Update Anime' }  },
     { path: "/UserList", component: UserList, meta: { title: 'UserList' }  },
+    { path: "/Logout", component: Logout, meta: { title: 'UserList' } },
 ];
 
 const router = createRouter({

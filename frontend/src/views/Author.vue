@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted } from 'vue';
+import axios from 'axios';
 
 function addTimeOuts() {
   let animeCards = document.querySelectorAll('.project')
@@ -7,13 +8,15 @@ function addTimeOuts() {
 }
 
 async function addProjectsToPage() {
-  let projectlist = await fetch(`/BackGetProjects`)
-  projectlist = await projectlist.json()
+  let projectlist = await axios(`http://localhost:8000/BackGetProjects`, {
+    withCredentials: true,
+    withXSRFToken: true,
+  })
   let projects = document.querySelectorAll('.project')
   projects.forEach((item, index) => {
-    if (projectlist.projects[index]) {
+    if (projectlist.data.projects[index]) {
       item.setAttribute('href', ``)
-      item.innerHTML = `<p>${projectlist.projects[index].projectName}</p>`
+      item.innerHTML = `<p>${projectlist.data.projects[index].projectName}</p>`
     }
     else {
       item.innerHTML = `<p>Пусто</p>`

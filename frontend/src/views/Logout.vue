@@ -1,69 +1,6 @@
 <script setup>
-import { onMounted, onUnmounted } from 'vue';
+import { onMounted } from 'vue';
 import axios from 'axios';
-
-async function updateAnime(event) {
-    event.preventDefault();
-    let name = document.querySelector('.name').value.toLocaleLowerCase()
-    let feedback = document.querySelector('textarea').value.toLocaleLowerCase()
-    let status = document.querySelector('select').value
-
-    if (!name || !feedback) {
-        let message = document.querySelector('.message');
-        message.innerHTML = "<p>Поле пустое</p>"
-        message.classList.remove('hidden')
-        setTimeout(() => {
-            message.classList.add('hidden')
-        }, 5000)
-        return
-    }
-
-    switch (status) {
-        case "Просмотрено": {
-            status = "viewed"
-            break
-        }
-        case "Запранированно": {
-            status = "planned"
-            break
-        }
-        case "Брошено": {
-            status = "dropped"
-            break
-        }
-        default: {
-            status = "viewed"
-            break
-        }
-    }
-
-    let validation = {
-        AnimeName: name,
-        status: status,
-        anime_feedback: feedback,
-    }
-
-    axios.put("http://localhost:8000/BackUpdateFeedback", validation, {
-        withCredentials: true,
-        withXSRFToken: true,
-    })
-        .then((result) => {
-            let message = document.querySelector('.message');
-            message.innerHTML = "<p>" + result.data.message + "</p>"
-            message.classList.remove('hidden')
-            setTimeout(() => {
-                message.classList.add('hidden')
-            }, 5000)
-        })
-        .catch(() => {
-            let message = document.querySelector('.message');
-            message.innerHTML = "<p>Случилась ошибка</p>"
-            message.classList.remove('hidden')
-            setTimeout(() => {
-                message.classList.add('hidden')
-            }, 5000)
-        })
-}
 
 onMounted(() => {
     axios.get(`http://localhost:8000/isAuth`, {
@@ -74,17 +11,59 @@ onMounted(() => {
             if (!result.data.isAuth) {
                 document.querySelector('main>h1').classList.add('hidden')
                 document.querySelector('form').classList.add("hidden");
+                document.querySelector('main>p').classList.add("hidden");
                 let message = document.querySelector('.message')
                 message.classList.remove("hidden")
-                message.innerHTML = "<p>Необходимо авторизоваться</p>"
+                message.innerHTML = "<p>Вы уже вошли</p>"
             }
         })
 
-    document.addEventListener('submit', updateAnime);
-});
+    document.addEventListener('submit', (event) => {
+        event.preventDefault();
 
-onUnmounted(() => {
-    document.removeEventListener('submit', updateAnime);
+        axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+            withCredentials: true,
+            withXSRFToken: true,
+        })
+            .then(() => {
+
+                axios.get('http://localhost:8000/logout', {
+                    withCredentials: true,
+                    withXSRFToken: true,
+                    headers: {
+                        'X-XSRF-TOKEN': decodeURIComponent(
+                            document.cookie
+                                .split('; ')
+                                .find(r => r.startsWith('XSRF-TOKEN='))
+                                .split('=')[1]
+                        )
+                    }
+                })
+                    .then((result) => {
+                        let message = document.querySelector('.message');
+                        message.innerHTML = "<p>" + result.data.message + "</p>"
+                        message.classList.remove('hidden')
+                        if (result.data.message == "Успешный выход") {
+                            setTimeout(() => {
+                                window.location.href = '/';
+                            }, 1000)
+                        }
+                        else {
+                            setTimeout(() => {
+                                message.classList.add('hidden')
+                            }, 5000)
+                        }
+                    })
+                    .catch(() => {
+                        let message = document.querySelector('.message');
+                        message.innerHTML = "<p>Случилась ошибка</p>"
+                        message.classList.remove('hidden')
+                        setTimeout(() => {
+                            message.classList.add('hidden')
+                        }, 5000)
+                    })
+            })
+    })
 });
 </script>
 
@@ -96,16 +75,9 @@ onUnmounted(() => {
             </router-link>
         </header>
         <main>
-            <h1>Изменить отзыв</h1>
+            <h1>Выйти</h1>
             <form>
-                <input class="name" placeholder="Название аниме">
-                <select>
-                    <option>Просмотрено</option>
-                    <option>Запранированно</option>
-                    <option>Брошено</option>
-                </select>
-                <textarea class="feedback" placeholder="Отзыв"></textarea>
-                <input class="submit" type="submit" value="Изменить отзыв">
+                <input class="submit" type="submit" value="Выход">
             </form>
             <div class="message orange hidden">
             </div>
@@ -179,14 +151,6 @@ input {
     margin: 20px;
 }
 
-select {
-    border-radius: 20px;
-    width: 80%;
-    height: 10vh;
-    margin-bottom: 20px;
-    background-color: #ffffff;
-}
-
 .submit {
     background-color: #FF7400;
     font-family: 'AnimeAce', sans-serif;
@@ -203,6 +167,38 @@ select {
 
 .feedback::placeholder {
     font-family: 'AnimeAce', sans-serif;
+}
+
+.register {
+    color: #FF7400;
+    text-decoration: none;
+}
+
+.mail::placeholder {
+    font-family: 'AnimeAce', sans-serif;
+}
+
+.password::placeholder {
+    font-family: 'AnimeAce', sans-serif;
+}
+
+input.password {
+    font-family: sans-serif !important;
+}
+
+.message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40vw;
+    height: 30vh;
+    border: 3px solid #FF7400;
+    border-radius: 30px;
+    margin: 5px;
+}
+
+.orange {
+    color: #FF7400;
 }
 
 .submit:hover {
@@ -239,25 +235,9 @@ textarea::placeholder {
     color: #000000;
 }
 
-.message {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 40vw;
-    height: 30vh;
-    border: 3px solid #FF7400;
-    border-radius: 30px;
-    margin: 5px;
-}
-
-.orange {
-    color: #FF7400;
-}
-
 .hidden {
     display: none;
 }
-
 
 @media (min-width:2500px) {
     * {
@@ -274,12 +254,6 @@ textarea::placeholder {
 
     input {
         width: 100%;
-        height: 100px;
-    }
-
-    select {
-        width: 100%;
-        height: 100px;
     }
 
     textarea {
@@ -305,10 +279,6 @@ textarea::placeholder {
     }
 
     input {
-        width: 100%;
-    }
-
-    select {
         width: 100%;
     }
 

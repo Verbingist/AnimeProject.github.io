@@ -1,31 +1,29 @@
 <script setup>
 import { onMounted } from 'vue';
 import validator from 'validator';
+import axios from 'axios';
 
 onMounted(() => {
-  let auth = document.cookie.split("; ").filter((item) => {
-    return item.startsWith('auth=')
-  });
-  if (auth[0]) {
-    auth = auth[0].split('=')
-    auth = auth[1]
-  }
-  console.log(auth)
-  if (auth == 1) {
-    document.querySelector('main>h1').classList.add('hidden')
-    document.querySelector('form').classList.add("hidden");
-    document.querySelector('main>p').classList.add("hidden");
-    let message = document.querySelector('.message')
-    message.classList.remove("hidden")
-    message.innerHTML = "<p>Вы уже вошли</p>"
-  }
-
+  axios.get(`http://localhost:8000/isAuth`, {
+    withCredentials: true,
+    withXSRFToken: true,
+  })
+    .then((result) => {
+      if (result.data.isAuth) {
+        document.querySelector('main>h1').classList.add('hidden')
+        document.querySelector('form').classList.add("hidden");
+        document.querySelector('main>p').classList.add("hidden");
+        let message = document.querySelector('.message')
+        message.classList.remove("hidden")
+        message.innerHTML = "<p>Вы уже вошли</p>"
+      }
+    })
 
   document.addEventListener('submit', (event) => {
     event.preventDefault();
     let inputs = document.querySelectorAll('input');
-    let email = inputs[0].value;
-    let password = inputs[1].value;
+    let email = inputs[0].value.toLocaleLowerCase();
+    let password = inputs[1].value.toLocaleLowerCase();
 
     if (!validator.isEmail(email)) {
       let message = document.querySelector('.message');
@@ -37,42 +35,52 @@ onMounted(() => {
       return
     }
 
-    let validation = JSON.stringify({
+    let validation = {
       email: email,
       password: password,
-    }, null, 2);
+    };
 
-    fetch("/BackLogin", {
-      method: 'POST',
-      headers: {
-        "Content-type": "application/json"
-      },
-      body: validation,
+    axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+      withCredentials: true,
+      withXSRFToken: true,
     })
-      .then(result => result.json())
-      .then((result) => {
-        let message = document.querySelector('.message');
-        message.innerHTML = "<p>" + result.message + "</p>"
-        message.classList.remove('hidden')
-        if (result.status == 200) {
-          document.cookie = "auth=1; max-age=3600";
-          setTimeout(() => {
-            window.location.href = '/';
-          }, 1000)
-        }
-        else {
-          setTimeout(() => {
-            message.classList.add('hidden')
-          }, 5000)
-        }
-      })
-      .catch(() => {
-        let message = document.querySelector('.message');
-        message.innerHTML = "<p>Случилась ошибка</p>"
-        message.classList.remove('hidden')
-        setTimeout(() => {
-          message.classList.add('hidden')
-        }, 5000)
+      .then(() => {
+
+        axios.post('http://localhost:8000/login', validation, {
+          withCredentials: true,
+          withXSRFToken: true,
+          headers: {
+            'X-XSRF-TOKEN': decodeURIComponent(
+              document.cookie
+                .split('; ')
+                .find(r => r.startsWith('XSRF-TOKEN='))
+                .split('=')[1]
+            )
+          }
+        })
+          .then((result) => {
+            let message = document.querySelector('.message');
+            message.innerHTML = "<p>" + result.data.message + "</p>"
+            message.classList.remove('hidden')
+            if (result.data.message == "Успешный вход") {
+              setTimeout(() => {
+                window.location.href = '/';
+              }, 1000)
+            }
+            else {
+              setTimeout(() => {
+                message.classList.add('hidden')
+              }, 5000)
+            }
+          })
+          .catch(() => {
+            let message = document.querySelector('.message');
+            message.innerHTML = "<p>Случилась ошибка</p>"
+            message.classList.remove('hidden')
+            setTimeout(() => {
+              message.classList.add('hidden')
+            }, 5000)
+          })
       })
   })
 });

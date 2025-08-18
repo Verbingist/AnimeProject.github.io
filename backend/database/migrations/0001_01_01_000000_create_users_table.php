@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->string('email')->unique();
             $table->string('phone')->unique();
             $table->string('password');
+            $table->string('remember_token')->nullable();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
