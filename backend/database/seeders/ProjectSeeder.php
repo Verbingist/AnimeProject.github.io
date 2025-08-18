@@ -12,11 +12,7 @@ class ProjectSeeder extends Seeder
 {
     public function run(): void
     {
-        // Project::insert([
-        //     'projectName' => Str::random(10),
-        //     'projectHref' => Str::random(10),
-        // ]);
-        DB::table('projects')->insert([
+        Project::insert([
             'projectName' => Str::random(10),
             'projectHref' => Str::random(10),
         ]);

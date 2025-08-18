@@ -1,84 +1,90 @@
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, onUnmounted } from 'vue';
+import axios from 'axios';
 
-onMounted(() => {
-  let auth = document.cookie.split("; ").filter((item) => {
-    return item.startsWith('auth=')
-  });
-  if (auth[0]) {
-    auth = auth[0].split('=')
-    auth = auth[1]
+async function addAnime(event) {
+  event.preventDefault();
+  let name = document.querySelector('.name').value.toLocaleLowerCase()
+  let feedback = document.querySelector('textarea').value.toLocaleLowerCase()
+  let status = document.querySelector('select').value
+
+  if (!name || !feedback) {
+    let message = document.querySelector('.message');
+    message.innerHTML = "<p>Поле пустое</p>"
+    message.classList.remove('hidden')
+    setTimeout(() => {
+      message.classList.add('hidden')
+    }, 5000)
+    return
   }
-  if (auth != 1) {
-    document.querySelector('main>h1').classList.add('hidden')
-    document.querySelector('form').classList.add("hidden");
-    let message = document.querySelector('.message')
-    message.classList.remove("hidden")
-    message.innerHTML = "<p>Необходимо авторизоваться</p>"
+
+  switch (status) {
+    case "Просмотрено": {
+      status = "viewed"
+      break
+    }
+    case "Запранированно": {
+      status = "planned"
+      break
+    }
+    case "Брошено": {
+      status = "dropped"
+      break
+    }
+    default: {
+      status = "viewed"
+      break
+    }
   }
 
-  document.addEventListener('submit', (event) => {
-    event.preventDefault();
-    let name = document.querySelector('.name').value
-    let feedback = document.querySelector('textarea').value
-    let status = document.querySelector('select').value
+  let validation = {
+    AnimeName: name,
+    status: status,
+    anime_feedback: feedback,
+  }
 
-    if (!name || !feedback) {
+  axios.post('http://localhost:8000/BackAddFeedback', validation, {
+    withCredentials: true,
+    withXSRFToken: true,
+  })
+    .then((result) => {
       let message = document.querySelector('.message');
-      message.innerHTML = "<p>Поле пустое</p>"
+      message.innerHTML = "<p>" + result.data.message + "</p>"
       message.classList.remove('hidden')
       setTimeout(() => {
         message.classList.add('hidden')
       }, 5000)
-      return
-    }
-
-    switch (status) {
-      case "Просмотрено": {
-        status = "viewed"
-      }
-      case "Запранированно": {
-        status = "planned"
-      }
-      case "Брошено": {
-        status = "dropped"
-      }
-      default: {
-        status = "viewed"
-      }
-    }
-
-    let validation = JSON.stringify({
-      AnimeName: name,
-      status: status,
-      anime_feedback: feedback,
-    }, null, 2);
-
-    fetch("/BackAddFeedback", {
-      method: 'POST',
-      headers: {
-        "Content-type": "application/json"
-      },
-      body: validation,
     })
-      .then(result => result.json())
-      .then((result) => {
-        let message = document.querySelector('.message');
-        message.innerHTML = "<p>" + result.message + "</p>"
-        message.classList.remove('hidden')
-        setTimeout(() => {
-          message.classList.add('hidden')
-        }, 5000)
-      })
-      .catch(() => {
-        let message = document.querySelector('.message');
-        message.innerHTML = "<p>Случилась ошибка</p>"
-        message.classList.remove('hidden')
-        setTimeout(() => {
-          message.classList.add('hidden')
-        }, 5000)
-      })
+    .catch(() => {
+      let message = document.querySelector('.message');
+      message.innerHTML = "<p>Случилась ошибка</p>"
+      message.classList.remove('hidden')
+      setTimeout(() => {
+        message.classList.add('hidden')
+      }, 5000)
+    })
+}
+
+onMounted(() => {
+  axios.get(`http://localhost:8000/isAuth`, {
+    withCredentials: true,
+    withXSRFToken: true,
   })
+    .then((result) => {
+      if (!result.data.isAuth) {
+        document.querySelector('main>h1').classList.add('hidden')
+        document.querySelector('form').classList.add("hidden");
+        let message = document.querySelector('.message')
+        message.classList.remove("hidden")
+        message.innerHTML = "<p>Необходимо авторизоваться</p>"
+      }
+    })
+
+  document.addEventListener('submit', addAnime)
+});
+
+onUnmounted(() => {
+  document.removeEventListener('submit', addAnime);
 });
 </script>
 

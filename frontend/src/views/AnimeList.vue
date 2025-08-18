@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, watch, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import axios from 'axios';
 
 function pageInicialication() {
     isautorisated()
@@ -18,16 +19,14 @@ function pageInicialication() {
 }
 
 function isautorisated() {
-    let auth = document.cookie.split("; ").filter((item) => {
-        return item.startsWith('auth=')
-    });
-    if (auth[0]) {
-        auth = auth[0].split('=')
-        auth = auth[1]
-    }
-    if (auth == 1) {
-        document.querySelector('.header>h2').classList.add('hidden')
-    }
+    axios.get(`http://localhost:8000/isAuth`, {
+        withCredentials: true,
+        withXSRFToken: true,
+    })
+        .then((result) => {
+            if (result.data.isAuth)
+                document.querySelector('.header>h2').classList.add('hidden')
+        })
 }
 
 function addTimeOuts() {
@@ -69,9 +68,8 @@ function updatePagination(method = null, reset = null) {
 }
 
 async function addPopularAnimeToPage() {
-    let popularAnimeList = await fetch(`https://api.jikan.moe/v4/anime?order_by=popularity&limit=9&page=${page.value}`)
-    popularAnimeList = await popularAnimeList.json()
-    popularAnimeList = popularAnimeList.data
+    let popularAnimeList = await axios(`https://api.jikan.moe/v4/anime?order_by=popularity&limit=9&page=${page.value}`)
+    popularAnimeList = popularAnimeList.data.data
     let animeCards = document.querySelectorAll('.card')
     animeCards.forEach((item, index) => {
         item.querySelector('.info').classList.remove('hidden')
@@ -92,23 +90,19 @@ async function addPopularAnimeToPage() {
 async function addUserAnimeToPage(method = "viewed") {
     let feedbacks;
     if (route.query.email == "basic" || route.query.email == "")
-        feedbacks = JSON.stringify({
+        feedbacks = {
             'status': method,
-        }, null, 2)
+        }
     else
-        feedbacks = JSON.stringify({
+        feedbacks = {
             'email': route.query.email,
             'status': method,
-        }, null, 2)
+        }
 
-    fetch(`/BackGetPageOfFeedbacks?page=${page.value}`, {
-        method: 'POST',
-        headers: {
-            "Content-type": "application/json"
-        },
-        body: feedbacks,
+    axios.post(`http://localhost:8000/BackGetPageOfFeedbacks?page=${page.value}`, feedbacks, {
+        withCredentials: true,
+        withXSRFToken: true,
     })
-        .then(result => result.json())
         .then((result) => {
             let cards = document.querySelectorAll('.card')
             cards.forEach((item, index) => {
@@ -116,16 +110,16 @@ async function addUserAnimeToPage(method = "viewed") {
                 item.querySelector('.feedback').innerHTML = ""
                 item.querySelector('.info').classList.add('hidden')
                 item.querySelector('.feedback').classList.remove('hidden')
-                if (result.data[index]) {
-                    item.querySelector('.label').innerHTML = `<p>${result.data[index].AnimeName}</p>`
-                    item.querySelector('.feedback').innerHTML = `<p>${result.data[index].anime_feedback}</p>`
+                if (result.data.data[index]) {
+                    item.querySelector('.label').innerHTML = `<p>${result.data.data[index].AnimeName}</p>`
+                    item.querySelector('.feedback').innerHTML = `<p>${result.data.data[index].anime_feedback}</p>`
                 }
                 else {
                     item.querySelector('.label').innerHTML = `<p>Пусто</p>`
                     item.querySelector('.feedback').innerHTML = `<p>Отзыв отсутствует</p>`
                 }
             })
-            if (!result.notLast) lastPage.value = false
+            if (!result.data.notLast) lastPage.value = false
             else lastPage.value = true;
         })
 }
@@ -268,6 +262,7 @@ watch(() => route.query.page, () => {
                 <ul class="hrefList">
                     <li> <router-link to="/UserList?page=1">Участники</router-link> </li>
                     <li> <router-link :to="getNewRoute('basic')">Мои аниме</router-link> </li>
+                    <li> <router-link to="/Logout">Выйти</router-link> </li>
                 </ul>
             </aside>
         </main>
@@ -285,8 +280,11 @@ watch(() => route.query.page, () => {
                 <router-link class="footerHref" to="/Add">Добавить аниме</router-link>
                 <router-link class="footerHref" to="/Remove">Удалить аниме</router-link>
                 <router-link class="footerHref" to="/Update">Изменить отзыв</router-link>
+            </div>
+            <div class="footerHrefBlock none">
                 <router-link to="/UserList?page=1" class="footerHref">Участники</router-link>
                 <router-link :to="getNewRoute('basic')" class="footerHref">Мои аниме</router-link>
+                <router-link to="/Logout" class="footerHref">Выйти</router-link>
             </div>
         </footer>
     </div>

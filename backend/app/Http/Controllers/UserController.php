@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Feedback;
+use App\Models\Project;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
-use App\Models\Project;
+use Illuminate\Support\Facades\Auth;
+
 
 class UserController extends Controller
 {
@@ -44,36 +46,33 @@ class UserController extends Controller
             return response()->json(['message' => 'Введены некорректные данные'], 400);
         }
 
-        $user = User::where('email', '=', $request['email'])->first();
-
-        if ($user && Hash::check($request['password'], $user->password)) {
-            $request->session()->put('user_id', $user->id);
-            $request->session()->put('email', $request['email']);
-            return response()->json(['message' => 'Успешный вход', 'status' => 200], 200);
-        } else
-            return response()->json(['message' => 'Неверный логин или пароль', 'status' => 400], 400);
+        if (Auth::attempt($request->only('email', 'password'))) {
+            return response()->json(['message' => 'Успешный вход'], 200);
+        }
+        return response()->json(['message' => 'Неверные данные'], 401);
     }
     public function getPageOfFeedbacks(Request $request)
     {
         $email = $request['email'];
-        if ($request['email'] === "basic" || $request['email'] == "")
-            $email = $request->session()->get('email');
+        if (!isset($request['email']) && Auth::check())
+            $email = Auth::user()->email;
         $userid = User::where('email', '=', $email)->first()->id;
         $feedbacks = Feedback::where('user_id', '=', $userid)->
             where('status', '=', $request['status'])->orderBy('id')->paginate(9);
 
-        return response()->json(['data' => $feedbacks->items(),'notLast' => $feedbacks->hasMorePages() ,'status' => 200], 200);
+        return response()->json(['data' => $feedbacks->items(), 'notLast' => $feedbacks->hasMorePages(), 'status' => 200], 200);
     }
     public function getLogins()
     {
         $emails = User::select('email')->simplePaginate(18);
-        return response()->json(['data' => $emails->items(),'notLast' => $emails->hasMorePages(), 'status' => 200], 200);
+        return response()->json(['data' => $emails->items(), 'notLast' => $emails->hasMorePages(), 'status' => 200], 200);
     }
     public function addFeedback(Request $request)
     {
-        $userid = $request->session()->get('user_id');
-        if (!$userid)
+        if (!Auth::check())
             return response()->json(['message' => 'Вы не авторизованы', 'status' => 400], 400);
+
+        $userid = Auth::user()->id;
 
         $validator = Validator::make($request->all(), [
             'AnimeName' => 'required',
@@ -84,6 +83,12 @@ class UserController extends Controller
         if ($validator->fails()) {
             return response()->json(['message' => 'Название и статус обязательны'], 400);
         }
+
+        $anime = Feedback::select('AnimeName')->where('AnimeName', '=', $request['AnimeName'])
+            ->where('user_id', '=', $userid)->first();
+
+        if ($anime)
+            return response()->json(['message' => 'Отзыв на такое аниме уже существует'], 200);
 
         Feedback::insert([
             'user_id' => $userid,
@@ -96,11 +101,13 @@ class UserController extends Controller
     }
     public function deleteFeedback(Request $request)
     {
-        $userid = $request->session()->get('user_id');
-        if (!$userid)
+        if (!Auth::check())
             return response()->json(['message' => 'Вы не авторизованы', 'status' => 400], 400);
 
-        $validator = Validator::make($request->all(), [
+        $userid = Auth::user()->id;
+        $AnimeName = $request->query('AnimeName');
+
+        $validator = Validator::make(['AnimeName' => $AnimeName], [
             'AnimeName' => 'required',
         ]);
 
@@ -108,7 +115,7 @@ class UserController extends Controller
             return response()->json(['message' => 'Название обязательно'], 400);
         }
 
-        $deletedCount = Feedback::where('AnimeName', '=', $request['AnimeName'])
+        $deletedCount = Feedback::where('AnimeName', '=', $AnimeName)
             ->where('user_id', '=', $userid)
             ->delete();
 
@@ -119,14 +126,13 @@ class UserController extends Controller
     }
     public function updateFeedback(Request $request)
     {
-        $userid = $request->session()->get('user_id');
-        if (!$userid)
+        if (!Auth::check())
             return response()->json(['message' => 'Вы не авторизованы', 'status' => 400], 400);
+
+        $userid = Auth::user()->id;
 
         $validator = Validator::make($request->all(), [
             'AnimeName' => 'required',
-            'status' => '',
-            'anime_feedback' => '',
         ]);
 
         if ($validator->fails()) {
@@ -154,5 +160,16 @@ class UserController extends Controller
     {
         $projects = Project::all();
         return response()->json(['projects' => $projects, 'status' => 200], 200);
+    }
+    public function isAuth(Request $request)
+    {
+        return response()->json(['isAuth' => Auth::check(), 'status' => 200], 200);
+    }
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return response()->json(['message' => 'Успешный выход'], 200);
     }
 }

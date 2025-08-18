@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted } from 'vue';
 import validator from 'validator';
+import axios from 'axios';
 
 onMounted(() => {
 
@@ -8,11 +9,11 @@ onMounted(() => {
     event.preventDefault();
     event.preventDefault();
     let inputs = document.querySelectorAll('input');
-    let name = inputs[0].value;
-    let email = inputs[1].value;
-    let phone = inputs[2].value;
-    let password = inputs[3].value;
-    let password2 = inputs[4].value;
+    let name = inputs[0].value.toLocaleLowerCase();
+    let email = inputs[1].value.toLocaleLowerCase();
+    let phone = inputs[2].value.toLocaleLowerCase();
+    let password = inputs[3].value.toLocaleLowerCase();
+    let password2 = inputs[4].value.toLocaleLowerCase();
 
     let error = [];
 
@@ -44,26 +45,22 @@ onMounted(() => {
       return
     }
 
-    let validation = JSON.stringify({
+    let validation = {
       name: name,
       email: email,
       phone: phone,
       password: password,
-    }, null, 2);
+    }
 
-    fetch("/BackRegister", {
-      method: 'POST',
-      headers: {
-        "Content-type": "application/json"
-      },
-      body: validation,
+    axios.post("http://localhost:8000/BackRegister", validation, {
+      withCredentials: true,
+      withXSRFToken: true,
     })
-      .then(result => result.json())
       .then((result) => {
         let message = document.querySelector('.message');
-        message.innerHTML = "<p>" + result.message + "</p>"
+        message.innerHTML = "<p>" + result.data.message + "</p>"
         message.classList.remove('hidden')
-        if (result.status == 200) {
+        if (result.data.message == "Успешный вход") {
           setTimeout(() => {
             window.location.href = '/Login';
           }, 1000)

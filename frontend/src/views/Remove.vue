@@ -1,66 +1,65 @@
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, onUnmounted } from 'vue';
+import axios from 'axios';
 
-onMounted(() => {
-  let auth = document.cookie.split("; ").filter((item) => {
-    return item.startsWith('auth=')
-  });
-  if (auth[0]) {
-    auth = auth[0].split('=')
-    auth = auth[1]
-  }
-  console.log(auth)
-  if (auth != 1) {
-    document.querySelector('main>h1').classList.add('hidden')
-    document.querySelector('form').classList.add("hidden");
-    let message = document.querySelector('.message')
-    message.classList.remove("hidden")
-    message.innerHTML = "<p>Необходимо авторизоваться</p>"
+async function deleteAnime(event) {
+  event.preventDefault();
+  let name = document.querySelector('.name').value.toLocaleLowerCase()
+
+  if (!name) {
+    let message = document.querySelector('.message');
+    message.innerHTML = "<p>Поле пустое</p>"
+    message.classList.remove('hidden')
+    setTimeout(() => {
+      message.classList.add('hidden')
+    }, 5000)
+    return
   }
 
-  document.addEventListener('submit', (event) => {
-    event.preventDefault();
-    let name = document.querySelector('.name').value
-
-    if (!name) {
+  axios.delete("http://localhost:8000/BackDeleteFeedback", {
+    params: { AnimeName: name },
+    withCredentials: true,
+    withXSRFToken: true,
+  })
+    .then((result) => {
       let message = document.querySelector('.message');
-      message.innerHTML = "<p>Поле пустое</p>"
+      message.innerHTML = "<p>" + result.data.message + "</p>"
       message.classList.remove('hidden')
       setTimeout(() => {
         message.classList.add('hidden')
       }, 5000)
-      return
-    }
-
-    let validation = JSON.stringify({
-      AnimeName: name,
-    }, null, 2);
-
-    fetch("/BackDeleteFeedback", {
-      method: 'DELETE',
-      headers: {
-        "Content-type": "application/json"
-      },
-      body: validation,
     })
-      .then(result => result.json())
-      .then((result) => {
-        let message = document.querySelector('.message');
-        message.innerHTML = "<p>" + result.message + "</p>"
-        message.classList.remove('hidden')
-        setTimeout(() => {
-          message.classList.add('hidden')
-        }, 5000)
-      })
-      .catch(() => {
-        let message = document.querySelector('.message');
-        message.innerHTML = "<p>Случилась ошибка</p>"
-        message.classList.remove('hidden')
-        setTimeout(() => {
-          message.classList.add('hidden')
-        }, 5000)
-      })
+    .catch((error) => {
+      console.log(error)
+      let message = document.querySelector('.message');
+      message.innerHTML = "<p>Случилась ошибка</p>"
+      message.classList.remove('hidden')
+      setTimeout(() => {
+        message.classList.add('hidden')
+      }, 5000)
+    })
+}
+
+onMounted(() => {
+  axios.get(`http://localhost:8000/isAuth`, {
+    withCredentials: true,
+    withXSRFToken: true,
   })
+    .then((result) => {
+      if (!result.data.isAuth) {
+        document.querySelector('main>h1').classList.add('hidden')
+        document.querySelector('form').classList.add("hidden");
+        let message = document.querySelector('.message')
+        message.classList.remove("hidden")
+        message.innerHTML = "<p>Необходимо авторизоваться</p>"
+      }
+    })
+
+  document.addEventListener('submit', deleteAnime);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('submit', deleteAnime);
 });
 </script>
 
