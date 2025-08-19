@@ -13,9 +13,10 @@ function pageInicialication() {
             page: page.value,
             email: route.query.email || 'basic',
             method: route.query.method || 'popular',
+            search: search.value,
         }
     })
-    updatePage(route.query.method)
+    updatePage()
 }
 
 function isautorisated() {
@@ -88,62 +89,27 @@ async function addPopularAnimeToPage() {
     lastPage.value = true;
 }
 
-async function addUserAnimeToPage(method = "viewed") {
-    let feedbacks;
-    if (route.query.email == "basic" || route.query.email == "")
-        feedbacks = {
-            'status': method,
-        }
-    else
-        feedbacks = {
-            'email': route.query.email,
-            'status': method,
-        }
-
-    axios.post(`http://localhost:8000/BackGetPageOfFeedbacks?page=${page.value}`, feedbacks, {
-        withCredentials: true,
-        withXSRFToken: true,
-    })
-        .then((result) => {
-            authRemove.value = true
-            let cards = document.querySelectorAll('.card')
-            cards.forEach((item, index) => {
-                item.querySelector('.label').innerHTML = ""
-                item.querySelector('.feedback').innerHTML = ""
-                item.querySelector('.info').classList.add('hidden')
-                item.querySelector('.feedback').classList.remove('hidden')
-                if (result.data.data[index]) {
-                    item.querySelector('.label').innerHTML = `<p>${result.data.data[index].AnimeName}</p>`
-                    item.querySelector('.feedback').innerHTML = `<p>${result.data.data[index].anime_feedback}</p>`
-                }
-                else {
-                    item.querySelector('.label').innerHTML = `<p>Пусто</p>`
-                    item.querySelector('.feedback').innerHTML = `<p>Отзыв отсутствует</p>`
-                }
-            })
-            if (!result.data.notLast) lastPage.value = false
-            else lastPage.value = true;
-        })
-        .catch(() => {
-            authRemove.value = false
-        })
-}
-
 function updatePage() {
     addTimeOuts()
     updatePagination()
-    if (route.query.method == 'viewed') {
-        addUserAnimeToPage('viewed')
-    }
-    else if (route.query.method == 'planned') {
-        addUserAnimeToPage('planned')
-    }
-    else if (route.query.method == 'dropped') {
-        addUserAnimeToPage('dropped')
+    if (route.query.method == 'viewed' || route.query.method == 'planned' || route.query.method == 'dropped') {
+        searchUserAnime()
     }
     else {
         addPopularAnimeToPage()
     }
+}
+
+function updateSearch(event) {
+    page.value = 1;
+    updatePagination()
+    router.push({
+        path: route.path,
+        query: {
+            ...route.query,
+            search: event.target.value,
+        }
+    })
 }
 
 function getNewRoute(method) {
@@ -166,16 +132,16 @@ function getNewRoute(method) {
     }
 }
 
-async function searchAnime(event) {
+async function searchUserAnime() {
     let feedbacks;
     if (route.query.email == "basic" || route.query.email == "")
         feedbacks = {
-            'AnimeName': event.target.value,
+            'AnimeName': route.query.search,
             'status': route.query.method,
         }
     else
         feedbacks = {
-            'AnimeName': event.target.value,
+            'AnimeName': route.query.search,
             'email': route.query.email,
             'status': route.query.method,
         }
@@ -203,11 +169,15 @@ async function searchAnime(event) {
             if (!result.data.notLast) lastPage.value = false
             else lastPage.value = true;
         })
+        .catch(() => {
+            authRemove.value = false
+        })
 }
 
 let authRemove = ref(true)
 let route = useRoute();
 let router = useRouter();
+let search = ref(route.query.search || "")
 const page = ref(Number(route.query.page) || 1)
 const lastPage = ref(true)
 
@@ -224,19 +194,24 @@ watch(() => route.query.method, () => {
 watch(() => route.query.page, () => {
     updatePage()
 });
+
+watch(() => route.query.search, () => {
+    updatePage()
+});
 </script>
 
 <template>
     <div class="wrapper">
         <header class="header"> <router-link to="#" class="logo">
                 <h1>Animelist</h1>
-            </router-link> <input @input="searchAnime" type="search" class="search" placeholder="Найти аниме">
+            </router-link> <input @input="updateSearch" type="search" class="search" placeholder="Найти аниме">
             <h2><router-link class="login" to="/Login">Вход/регистрация</router-link></h2>
         </header>
         <main class="container">
             <div class="notAuth" v-show="!authRemove">
-                    <h1>Похоже вы не авторизованы</h1>
-                    <p>Авторизуйтесь или посмотрите отзывы <b><router-link to="/UserList?page=1">пользователей</router-link></b></p>
+                <h1>Похоже вы не авторизованы</h1>
+                <p>Авторизуйтесь или посмотрите отзывы <b><router-link
+                            to="/UserList?page=1">пользователей</router-link></b></p>
             </div>
             <div class="content" v-show="authRemove">
                 <div class="cardRow">
@@ -456,16 +431,16 @@ ul>li>a:hover {
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    color:#FF7400;
+    color: #FF7400;
 }
 
 .notAuth a {
-    color:#FF7400;
+    color: #FF7400;
     text-decoration: none;
 }
 
 .notAuth a:hover {
-    color:#000000;
+    color: #000000;
 }
 
 .cardRow {
