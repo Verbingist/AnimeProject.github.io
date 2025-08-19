@@ -12,7 +12,7 @@ class UserSeeder extends Seeder
     {
         User::insert([
             'name' => Str::random(10),
-            'email' => Str::random(10),
+            'email' => 'aaa' . Str::random(10),
             'phone' => Str::random(10),
             'password' => Str::random(20),
         ]);

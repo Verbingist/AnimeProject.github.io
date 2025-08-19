@@ -9,6 +9,7 @@ function pageInicialication() {
     query: {
       ...route.query,
       page: page.value,
+      search: search.value,
     }
   })
   updatePage()
@@ -17,26 +18,6 @@ function pageInicialication() {
 function addTimeOuts() {
   let animeCards = document.querySelectorAll('.user')
   animeCards.forEach(item => { item.innerHTML = "<p>Идет загрузка</p>" })
-}
-
-async function addUsersToPage() {
-  let userlist = await axios(`http://localhost:8000/BackGetLogins?page=${page.value}`, {
-    withCredentials: true,
-    withXSRFToken: true,
-  })
-  userlist = userlist.data;
-  let users = document.querySelectorAll('.user')
-  users.forEach((item, index) => {
-    if (userlist.data[index]) {
-      item.setAttribute('href', `/?page=1&method=viewed&email=${userlist.data[index].email}`)
-      item.innerHTML = `<p>${userlist.data[index].email}</p>`
-    }
-    else {
-      item.innerHTML = `<p>Пусто</p>`
-    }
-  })
-  if (!userlist.notLast) lastPage.value = false
-  else lastPage.value = true;
 }
 
 function updatePagination(method = null, reset = null) {
@@ -71,15 +52,25 @@ function updatePagination(method = null, reset = null) {
 
 function updatePage() {
   addTimeOuts()
-  addUsersToPage()
+  userSearch()
   updatePagination()
 }
 
-async function userSearch(event) {
+function updateSearch(event) {
   page.value = 1;
   updatePagination()
+  router.push({
+    path: route.path,
+    query: {
+      ...route.query,
+      search: event.target.value,
+    }
+  })
+}
+
+async function userSearch() {
   let searchData = {
-    'Users': event.target.value
+    'Users': route.query.search
   }
   axios.post(`http://localhost:8000/BackUserSearch?page=${page.value}`, searchData, {
     withCredentials: true,
@@ -118,6 +109,7 @@ async function userSearch(event) {
 
 let route = useRoute();
 let router = useRouter();
+let search = ref(route.query.search || "")
 const page = ref(Number(route.query.page) || 1)
 const lastPage = ref(true)
 
@@ -125,14 +117,12 @@ onMounted(() => {
   pageInicialication()
 });
 
-watch(() => route.query.method, () => {
-  page.value = 1;
-  isautorisated()
-  updatePage()
-})
-
 watch(() => route.query.page, () => {
   updatePage()
+});
+
+watch(() => route.query.search, () => {
+  userSearch()
 });
 
 </script>
@@ -143,7 +133,7 @@ watch(() => route.query.page, () => {
       <router-link to="/" class="logo">
         <h1>Animelist</h1>
       </router-link>
-      <input @input="userSearch" type="search" class="search" placeholder="Поиск пользователя">
+      <input @input="updateSearch" type="search" class="search" placeholder="Поиск пользователя">
     </header>
     <main>
       <div class="usersrow">
@@ -175,7 +165,7 @@ watch(() => route.query.page, () => {
       <div class="pagination">
         <a @click="updatePagination('back')" class="pagginationButton">← Пред</a>
         <span class="pagginationButton">Страница: {{ page }}</span>
-        <a v-show="lastPage" @click="updatePagination('up')" class="pagginationButton">След→</a>
+        <a @click="updatePagination('up')" v-show="lastPage" class="pagginationButton">След→</a>
       </div>
     </main>
     <footer class="footer">

@@ -13,9 +13,9 @@ class FeedbackSeeder extends Seeder
     {
         Feedback::insert([
             'user_id' => 17,
-            'AnimeName' => Str::random(10),
-            'status' => 'dropped',
-            'anime_feedback' => Str::random(20),
+            'AnimeName' => 'aaa' . Str::random(10),
+            'status' => 'planned',
+            'anime_feedback' => Str::random(10) . ' ' . Str::random(10),
         ]);
     }
 }

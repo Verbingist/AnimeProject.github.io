@@ -51,22 +51,6 @@ class UserController extends Controller
         }
         return response()->json(['message' => 'Неверные данные'], 401);
     }
-    public function getPageOfFeedbacks(Request $request)
-    {
-        $email = $request['email'];
-        if (!isset($request['email']) && Auth::check())
-            $email = Auth::user()->email;
-        $userid = User::where('email', '=', $email)->first()->id;
-        $feedbacks = Feedback::where('user_id', '=', $userid)->
-            where('status', '=', $request['status'])->orderBy('id')->paginate(9);
-
-        return response()->json(['data' => $feedbacks->items(), 'notLast' => $feedbacks->hasMorePages(), 'status' => 200], 200);
-    }
-    public function getLogins()
-    {
-        $emails = User::select('email')->simplePaginate(18);
-        return response()->json(['data' => $emails->items(), 'notLast' => $emails->hasMorePages(), 'status' => 200], 200);
-    }
     public function addFeedback(Request $request)
     {
         if (!Auth::check())
