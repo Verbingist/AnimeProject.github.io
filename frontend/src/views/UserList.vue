@@ -35,7 +35,7 @@ async function addUsersToPage() {
       item.innerHTML = `<p>Пусто</p>`
     }
   })
-  if (!userlist.data.notLast) lastPage.value = false
+  if (!userlist.notLast) lastPage.value = false
   else lastPage.value = true;
 }
 
@@ -75,6 +75,47 @@ function updatePage() {
   updatePagination()
 }
 
+async function userSearch(event) {
+  page.value = 1;
+  updatePagination()
+  let searchData = {
+    'Users': event.target.value
+  }
+  axios.post(`http://localhost:8000/BackUserSearch?page=${page.value}`, searchData, {
+    withCredentials: true,
+    withXSRFToken: true,
+    headers: {
+      'X-XSRF-TOKEN': decodeURIComponent(
+        document.cookie
+          .split('; ')
+          .find(r => r.startsWith('XSRF-TOKEN='))
+          .split('=')[1]
+      )
+    }
+  })
+    .then((result) => {
+      console.log(result)
+      if (result)
+        return result.data
+    })
+    .then(result => {
+      if (!result) return
+      console.log(result)
+      let users = document.querySelectorAll('.user')
+      users.forEach((item, index) => {
+        if (result.data[index]) {
+          item.setAttribute('href', `/?page=1&method=viewed&email=${result.data[index].email}`)
+          item.innerHTML = `<p>${result.data[index].email}</p>`
+        }
+        else {
+          item.innerHTML = `<p>Пусто</p>`
+        }
+      })
+      if (!result.notLast) lastPage.value = false
+      else lastPage.value = true;
+    })
+}
+
 let route = useRoute();
 let router = useRouter();
 const page = ref(Number(route.query.page) || 1)
@@ -102,7 +143,7 @@ watch(() => route.query.page, () => {
       <router-link to="/" class="logo">
         <h1>Animelist</h1>
       </router-link>
-      <input type="search" class="search" placeholder="Поиск пользователя">
+      <input @input="userSearch" type="search" class="search" placeholder="Поиск пользователя">
     </header>
     <main>
       <div class="usersrow">

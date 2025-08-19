@@ -172,4 +172,21 @@ class UserController extends Controller
         $request->session()->regenerateToken();
         return response()->json(['message' => 'Успешный выход'], 200);
     }
+    public function userSearch(Request $request)
+    {
+        $users = User::select('email')->where('email', 'like', $request['Users'] . '%')->simplePaginate(18);
+        return response()->json(['data' => $users->items(), 'notLast' => $users->hasMorePages(), 'status' => 200], 200);
+    }
+    public function feedbackSearch(Request $request)
+    {
+        $email = $request['email'];
+        if (!isset($request['email']) && Auth::check())
+            $email = Auth::user()->email;
+        $userid = User::where('email', '=', $email)->first()->id;
+        $feedbacks = Feedback::where('user_id', '=', $userid)->
+            where('status', '=', $request['status'])
+            ->where('AnimeName', 'like', $request['AnimeName'] . '%')->orderBy('id')->paginate(9);
+
+        return response()->json(['data' => $feedbacks->items(), 'notLast' => $feedbacks->hasMorePages(), 'status' => 200], 200);
+    }
 }

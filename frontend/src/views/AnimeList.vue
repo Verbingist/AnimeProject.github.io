@@ -68,6 +68,7 @@ function updatePagination(method = null, reset = null) {
 }
 
 async function addPopularAnimeToPage() {
+    authRemove.value = true
     let popularAnimeList = await axios(`https://api.jikan.moe/v4/anime?order_by=popularity&limit=9&page=${page.value}`)
     popularAnimeList = popularAnimeList.data.data
     let animeCards = document.querySelectorAll('.card')
@@ -104,6 +105,7 @@ async function addUserAnimeToPage(method = "viewed") {
         withXSRFToken: true,
     })
         .then((result) => {
+            authRemove.value = true
             let cards = document.querySelectorAll('.card')
             cards.forEach((item, index) => {
                 item.querySelector('.label').innerHTML = ""
@@ -121,6 +123,9 @@ async function addUserAnimeToPage(method = "viewed") {
             })
             if (!result.data.notLast) lastPage.value = false
             else lastPage.value = true;
+        })
+        .catch(() => {
+            authRemove.value = false
         })
 }
 
@@ -161,6 +166,46 @@ function getNewRoute(method) {
     }
 }
 
+async function searchAnime(event) {
+    let feedbacks;
+    if (route.query.email == "basic" || route.query.email == "")
+        feedbacks = {
+            'AnimeName': event.target.value,
+            'status': route.query.method,
+        }
+    else
+        feedbacks = {
+            'AnimeName': event.target.value,
+            'email': route.query.email,
+            'status': route.query.method,
+        }
+
+    axios.post(`http://localhost:8000/BackFeedbackSearch?page=${page.value}`, feedbacks, {
+        withCredentials: true,
+        withXSRFToken: true,
+    })
+        .then((result) => {
+            let cards = document.querySelectorAll('.card')
+            cards.forEach((item, index) => {
+                item.querySelector('.label').innerHTML = ""
+                item.querySelector('.feedback').innerHTML = ""
+                item.querySelector('.info').classList.add('hidden')
+                item.querySelector('.feedback').classList.remove('hidden')
+                if (result.data.data[index]) {
+                    item.querySelector('.label').innerHTML = `<p>${result.data.data[index].AnimeName}</p>`
+                    item.querySelector('.feedback').innerHTML = `<p>${result.data.data[index].anime_feedback}</p>`
+                }
+                else {
+                    item.querySelector('.label').innerHTML = `<p>Пусто</p>`
+                    item.querySelector('.feedback').innerHTML = `<p>Отзыв отсутствует</p>`
+                }
+            })
+            if (!result.data.notLast) lastPage.value = false
+            else lastPage.value = true;
+        })
+}
+
+let authRemove = ref(true)
 let route = useRoute();
 let router = useRouter();
 const page = ref(Number(route.query.page) || 1)
@@ -185,11 +230,15 @@ watch(() => route.query.page, () => {
     <div class="wrapper">
         <header class="header"> <router-link to="#" class="logo">
                 <h1>Animelist</h1>
-            </router-link> <input type="search" class="search" placeholder="Найти аниме">
+            </router-link> <input @input="searchAnime" type="search" class="search" placeholder="Найти аниме">
             <h2><router-link class="login" to="/Login">Вход/регистрация</router-link></h2>
         </header>
         <main class="container">
-            <div class="content">
+            <div class="notAuth" v-show="!authRemove">
+                    <h1>Похоже вы не авторизованы</h1>
+                    <p>Авторизуйтесь или посмотрите отзывы <b><router-link to="/UserList?page=1">пользователей</router-link></b></p>
+            </div>
+            <div class="content" v-show="authRemove">
                 <div class="cardRow">
                     <div class="card">
                         <div class="label"></div>
@@ -397,6 +446,26 @@ ul>li>a:hover {
     min-height: 1200px;
     display: flex;
     flex-direction: column;
+}
+
+.notAuth {
+    background-color: #ffffff;
+    width: 80%;
+    min-height: 800px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color:#FF7400;
+}
+
+.notAuth a {
+    color:#FF7400;
+    text-decoration: none;
+}
+
+.notAuth a:hover {
+    color:#000000;
 }
 
 .cardRow {
