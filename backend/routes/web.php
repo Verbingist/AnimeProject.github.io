@@ -13,6 +13,8 @@ Route::get('/BackGetLogins', [UserController::class, 'getLogins']);
 Route::get('/BackGetProjects', [UserController::class, 'getProjects']);
 Route::get('/isAuth', [UserController::class, 'isAuth']);
 Route::get('/logout', [UserController::class, 'logout']);
+Route::post('/BackUserSearch', [UserController::class, 'userSearch']);
+Route::post('/BackFeedbackSearch', [UserController::class, 'feedbackSearch']);
 
 
 Route::fallback(function () {
