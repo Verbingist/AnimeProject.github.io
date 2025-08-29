@@ -469,7 +469,7 @@ ul>li>a:hover {
     justify-content: center;
     align-items: center;
     margin-bottom: 5%;
-    border: 3px solid #FF7400;
+    /*border: 3px solid #FF7400;*/
     border-radius: 20px;
     width: 95%;
     height: 20%;
