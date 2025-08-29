@@ -14,7 +14,6 @@ Route::get('/logout', [UserController::class, 'logout']);
 Route::post('/BackUserSearch', [UserController::class, 'userSearch']);
 Route::post('/BackFeedbackSearch', [UserController::class, 'feedbackSearch']);
 
-
 Route::fallback(function () {
     return response(null, 404);
 });

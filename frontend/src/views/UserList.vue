@@ -262,6 +262,7 @@ main {
   width: 30%;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .user {
